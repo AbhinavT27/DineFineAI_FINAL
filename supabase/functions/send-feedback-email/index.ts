@@ -47,18 +47,15 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Send email via NotificationAPI
     const result = await notificationapi.send({
-      type: 'new_feedback',
+      type: 'feedback_notification',
       to: {
-        id: 'support',
         email: 'support@dinefineai.com'
       },
       parameters: {
-        subject: `New ${feedbackType} Feedback: ${subject}`,
+        subject: subject,
+        content: emailContent,
         feedback_type: feedbackType,
-        user_email: userEmail || 'Anonymous User',
-        rating: rating ? `${rating}/5 stars` : 'No rating provided',
-        message: message,
-        timestamp: new Date().toLocaleString()
+        user_email: userEmail || 'Anonymous'
       }
     });
 

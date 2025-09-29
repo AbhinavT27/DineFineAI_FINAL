@@ -189,9 +189,9 @@ export const useSubscription = () => {
           console.warn('Failed to cache subscription status:', e);
         }
 
-        // Check for subscription downgrades and reload if needed
+        // Reload page if subscription status changed (after returning from Stripe)
         if (statusChanged && user?.email) {
-          console.log('Subscription status changed, reloading page to check limits...');
+          console.log('Subscription status changed, reloading page...');
           setTimeout(() => {
             window.location.reload();
           }, 1000); // Small delay to ensure UI updates are visible first

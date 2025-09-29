@@ -26,7 +26,6 @@ export const DowngradeWarning = () => {
           variant="outline"
           size="sm"
           onClick={() => navigate('/saved-list')}
-          className="whitespace-nowrap"
         >
           Manage Saved
         </Button>

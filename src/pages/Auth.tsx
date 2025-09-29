@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/sonner";
@@ -270,10 +271,9 @@ const Auth = () => {
             
             <div className="space-y-2">
               <Label htmlFor="password">{t('common.password')}</Label>
-              <Input 
+              <PasswordInput 
                 id="password" 
                 placeholder="••••••••" 
-                type="password" 
                 value={password} 
                 onChange={handlePasswordChange} 
                 disabled={isSubmitting} 
@@ -292,10 +292,9 @@ const Auth = () => {
               <>
                 <div className="space-y-2">
                   <Label htmlFor="confirmPassword">{t('auth.confirmPassword')}</Label>
-                  <Input 
+                  <PasswordInput 
                     id="confirmPassword" 
                     placeholder="••••••••" 
-                    type="password" 
                     value={confirmPassword} 
                     onChange={e => setConfirmPassword(e.target.value)} 
                     disabled={isSubmitting} 

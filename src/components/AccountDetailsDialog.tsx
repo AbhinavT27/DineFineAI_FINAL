@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { PasswordInput } from '@/components/ui/password-input';
 import { Label } from '@/components/ui/label';
 import { toast } from '@/components/ui/sonner';
 import { User } from 'lucide-react';
@@ -256,17 +257,17 @@ export const AccountDetailsDialog = ({
             {showPasswordForm && <div className="space-y-4 p-4 border rounded-lg bg-muted/50">
                 <div className="space-y-2">
                   <Label htmlFor="old-password">Current Password</Label>
-                  <Input id="old-password" type="password" value={oldPassword} onChange={e => setOldPassword(e.target.value)} placeholder="Enter current password" />
+                  <PasswordInput id="old-password" value={oldPassword} onChange={e => setOldPassword(e.target.value)} placeholder="Enter current password" />
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="new-password">New Password</Label>
-                  <Input id="new-password" type="password" value={newPassword} onChange={e => setNewPassword(e.target.value)} placeholder="Enter new password" />
+                  <PasswordInput id="new-password" value={newPassword} onChange={e => setNewPassword(e.target.value)} placeholder="Enter new password" />
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="confirm-password">Confirm New Password</Label>
-                  <Input id="confirm-password" type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} placeholder="Confirm new password" />
+                  <PasswordInput id="confirm-password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} placeholder="Confirm new password" />
                 </div>
 
                 <div className="flex gap-2 pt-2">

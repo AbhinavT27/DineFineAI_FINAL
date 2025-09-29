@@ -2,7 +2,6 @@
 import React, { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { AppLayout } from '@/components/AppLayout';
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, isLoading, isNewUser } = useAuth();
@@ -31,8 +30,8 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     );
   }
 
-  // If authenticated, render children wrapped in AppLayout
-  return user ? <AppLayout>{children}</AppLayout> : null;
+  // If authenticated, render children
+  return user ? <>{children}</> : null;
 };
 
 export default ProtectedRoute;
