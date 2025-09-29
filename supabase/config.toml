@@ -1,0 +1,4 @@
+project_id = "tijsqfupxdyowiticatq"
+
+[functions.update-password-after-security-verification]
+verify_jwt = false
