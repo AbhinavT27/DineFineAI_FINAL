@@ -170,12 +170,25 @@ Deno.serve(async (req) => {
 
     if (updateError) {
       console.error('Password update error:', updateError);
+      
+      // Handle specific weak password error
+      let errorMessage = 'Failed to update password';
+      if (updateError.message?.includes('weak') || updateError.code === 'weak_password') {
+        errorMessage = 'Password is too weak. Please choose a stronger password with a mix of letters, numbers, and symbols.';
+      } else if (updateError.message?.includes('pwned')) {
+        errorMessage = 'This password has been found in data breaches. Please choose a different password.';
+      }
+      
       // Log failed attempt
       try {
         await supabaseAdmin.rpc('log_security_event', {
           p_user_id: user.id,
           p_event_type: 'password_reset_attempt',
-          p_event_details: { email: email.trim(), reason: 'update_failed' },
+          p_event_details: { 
+            email: email.trim(), 
+            reason: 'update_failed',
+            error_code: updateError.code || 'unknown'
+          },
           p_ip_address: clientIP,
           p_user_agent: userAgent,
           p_success: false
@@ -185,10 +198,10 @@ Deno.serve(async (req) => {
       }
       
       return new Response(
-        JSON.stringify({ success: false, error: 'Failed to update password' }),
+        JSON.stringify({ success: false, error: errorMessage }),
         { 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          status: 500 
+          status: 400 
         }
       );
     }
