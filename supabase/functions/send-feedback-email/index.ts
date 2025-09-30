@@ -47,11 +47,12 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Send email via NotificationAPI
     const result = await notificationapi.send({
-      type: 'feedback_notification',
-      to: {
+      notificationId: 'feedback_notification',
+      user: {
+        id: 'support',
         email: 'support@dinefineai.com'
       },
-      parameters: {
+      mergeTags: {
         subject: subject,
         content: emailContent,
         feedback_type: feedbackType,
