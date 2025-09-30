@@ -53,8 +53,9 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch, isLoading = false }) 
         const preferences = JSON.parse(searchPrefs);
         console.log('Loading search preferences:', preferences);
         
-        // If there was a manual location from last search, use it
-        if (preferences.location && !preferences.useCurrentLocation) {
+        // Only restore manual locations that were explicitly set by the user
+        // Do not restore location if it seems to be a default or incorrect value
+        if (preferences.location && !preferences.useCurrentLocation && preferences.location !== 'Boston, MA') {
           setUseCurrentLocation(false);
           setManualLocation(preferences.location);
           if (preferences.coordinates) {
@@ -62,15 +63,8 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch, isLoading = false }) 
           }
           console.log('Restored manual location:', preferences.location);
         }
-        // If current location was used, restore coordinates and address
-        else if (preferences.useCurrentLocation && preferences.coordinates) {
-          setUseCurrentLocation(true);
-          setCoordinates(preferences.coordinates);
-          if (preferences.location) {
-            setCurrentLocationAddress(preferences.location);
-          }
-          console.log('Restored current location coordinates:', preferences.coordinates);
-        }
+        // Do not restore current location coordinates to prevent stale location data
+        // Let the app get fresh location data each time
       }
     } catch (error) {
       console.error('Error loading cached search preferences:', error);
