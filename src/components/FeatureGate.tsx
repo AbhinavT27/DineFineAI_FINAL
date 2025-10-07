@@ -30,7 +30,7 @@ const FeatureGate: React.FC<FeatureGateProps> = ({
       case 'reviews':
         return true; // Reviews are available on all plans
       case 'aiAnalysis':
-        return subscription_tier === 'premium'; // AI-powered pros & cons only for premium
+        return limits.aiAnalysis;
       case 'tagging':
         return limits.canCreateTags;
       default:

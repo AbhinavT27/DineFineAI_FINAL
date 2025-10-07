@@ -75,24 +75,28 @@ const SaveButton: React.FC<SaveButtonProps> = ({ restaurant, className = '' }) =
         setIsSaved(false);
         toast.success('Restaurant removed from saved list');
       } else {
-        // Check if user is over their current plan's limit (due to downgrade)
-        if (isOverSavedRestaurantLimit()) {
-          toast.error(`You have exceeded your plan's limit of ${limits.maxSavedRestaurants} saved restaurants. Please remove some restaurants to continue.`);
-          return;
-        }
+        // Premium users have unlimited saves (-1), skip limit checks
+        if (limits.maxSavedRestaurants !== -1) {
+          // Check if user is over their current plan's limit (due to downgrade)
+          if (isOverSavedRestaurantLimit()) {
+            toast.error(`You have exceeded your plan's limit of ${limits.maxSavedRestaurants} saved restaurants. Please remove some restaurants to continue.`);
+            return;
+          }
 
-        // Check current saved count from Supabase before allowing save
-        const { count, error: countError } = await supabase
-          .from('saved_restaurants')
-          .select('*', { count: 'exact', head: true })
-          .eq('user_id', user.id);
+          // Check current saved count from Supabase before allowing save
+          const { count, error: countError } = await supabase
+            .from('saved_restaurants')
+            .select('*', { count: 'exact', head: true })
+            .eq('user_id', user.id);
 
-        if (countError) throw countError;
+          if (countError) throw countError;
 
-        if (count !== null && count >= limits.maxSavedRestaurants) {
-          const planType = limits.maxSavedRestaurants === 5 ? 'Pro' : 'Premium';
-          toast.error(`Saved restaurants limit reached (${limits.maxSavedRestaurants}). Upgrade to ${planType} for more saves!`);
-          return;
+          // For Pro (20) and Free (5) plans, check if limit reached
+          if (count !== null && count >= limits.maxSavedRestaurants) {
+            const planType = limits.maxSavedRestaurants === 5 ? 'Pro' : 'Premium';
+            toast.error(`Saved restaurants limit reached (${limits.maxSavedRestaurants}). Upgrade to ${planType} for more saves!`);
+            return;
+          }
         }
 
         // Add to saved list - convert Restaurant to Json

@@ -15,6 +15,7 @@ interface UsageLimits {
   canCreateTags: boolean;
   comparisonTool: boolean;
   detailedCalories: boolean;
+  aiAnalysis: boolean;
   exclusiveDiscounts: boolean;
   prioritySupport: boolean;
   advancedFilters: boolean;
@@ -27,6 +28,7 @@ const PLAN_LIMITS: Record<string, UsageLimits> = {
     canCreateTags: false,
     comparisonTool: false,
     detailedCalories: true, // Customer reviews available on free
+    aiAnalysis: false,
     exclusiveDiscounts: false,
     prioritySupport: false,
     advancedFilters: false,
@@ -37,6 +39,7 @@ const PLAN_LIMITS: Record<string, UsageLimits> = {
     canCreateTags: false, // Smart tagging is premium only
     comparisonTool: true, // 2-restaurant comparison
     detailedCalories: true, // Customer reviews available on pro
+    aiAnalysis: false,
     exclusiveDiscounts: false,
     prioritySupport: false,
     advancedFilters: true,
@@ -47,6 +50,7 @@ const PLAN_LIMITS: Record<string, UsageLimits> = {
     canCreateTags: true, // Smart tagging system
     comparisonTool: true, // 3-restaurant comparison
     detailedCalories: true, // Customer reviews and AI-powered pros & cons
+    aiAnalysis: true, // AI-powered analysis
     exclusiveDiscounts: true,
     prioritySupport: true,
     advancedFilters: true,

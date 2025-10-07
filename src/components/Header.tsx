@@ -15,6 +15,7 @@ import Logo from './Logo';
 import AppFeedback from './AppFeedback';
 import PlanIndicator from './PlanIndicator';
 import HeaderUsageIndicator from './HeaderUsageIndicator';
+import DailySearchIndicator from './DailySearchIndicator';
 import { useTranslation } from 'react-i18next';
 
 const Header = () => {
@@ -40,7 +41,8 @@ const Header = () => {
           </div>
 
           {user && (
-            <div className="flex-1 flex justify-center">
+            <div className="flex-1 flex justify-center gap-6">
+              <DailySearchIndicator />
               <HeaderUsageIndicator />
             </div>
           )}

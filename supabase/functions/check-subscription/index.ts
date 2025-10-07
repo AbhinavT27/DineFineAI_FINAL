@@ -94,10 +94,19 @@ serve(async (req) => {
       customer: customerId,
       limit: 10,
     });
-    // Only consider active and trialing subscriptions as valid AND not cancelled
+    // Only consider active and trialing subscriptions as valid
+    // If subscription is marked for cancellation (cancel_at_period_end), treat as inactive immediately
     const subscription = subscriptions.data.find((s: any) => 
       ["active", "trialing"].includes(s.status) && !s.cancel_at_period_end
     );
+    
+    // Log if user has cancelled subscriptions for transparency
+    const cancelledSubs = subscriptions.data.filter((s: any) => s.cancel_at_period_end);
+    if (cancelledSubs.length > 0) {
+      logStep("User has cancelled subscriptions - downgrading immediately", { 
+        cancelledCount: cancelledSubs.length 
+      });
+    }
     const hasActiveSub = !!subscription;
     let subscriptionTier = 'free';
     let subscriptionEnd = null;

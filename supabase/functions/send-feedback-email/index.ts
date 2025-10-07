@@ -50,7 +50,7 @@ const handler = async (req: Request): Promise<Response> => {
       notificationId: 'feedback_notification',
       user: {
         id: 'support',
-        email: 'support@dinefineai.com'
+        email: 'help.dinefineai@gmail.com'
       },
       mergeTags: {
         subject: subject,

@@ -297,11 +297,13 @@ export type Database = {
         Row: {
           allergies: string[] | null
           created_at: string
+          daily_searchrequests: number
           dietary_preferences: string[] | null
           distance_unit: string | null
           email: string
           id: string
           language: string
+          last_search_reset_date: string
           location: string | null
           phone_number: string | null
           updated_at: string
@@ -311,11 +313,13 @@ export type Database = {
         Insert: {
           allergies?: string[] | null
           created_at?: string
+          daily_searchrequests?: number
           dietary_preferences?: string[] | null
           distance_unit?: string | null
           email: string
           id: string
           language?: string
+          last_search_reset_date?: string
           location?: string | null
           phone_number?: string | null
           updated_at?: string
@@ -325,11 +329,13 @@ export type Database = {
         Update: {
           allergies?: string[] | null
           created_at?: string
+          daily_searchrequests?: number
           dietary_preferences?: string[] | null
           distance_unit?: string | null
           email?: string
           id?: string
           language?: string
+          last_search_reset_date?: string
           location?: string | null
           phone_number?: string | null
           updated_at?: string

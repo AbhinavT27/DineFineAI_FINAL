@@ -360,13 +360,18 @@ const RestaurantDetails: React.FC<RestaurantDetailsProps> = ({ restaurant, shoul
       {/* AI Analysis and Reviews Section */}
       <div className="space-y-4">
         {/* AI-Powered Analysis */}
-        <AIAnalysisUpgrade />
+        <AIAnalysisUpgrade 
+          restaurantName={restaurant.name}
+          reviews={restaurant.reviews || []}
+          pros={restaurant.pros || []}
+          cons={restaurant.cons || []}
+        />
 
         {/* Customer Reviews - Available for all users */}
         <RestaurantReviews 
           reviews={restaurant.reviews || []}
-          pros={[]}
-          cons={[]}
+          pros={restaurant.pros || []}
+          cons={restaurant.cons || []}
         />
       </div>
     </div>

@@ -31,11 +31,18 @@ import ChangePassword from "./pages/ChangePassword";
 import EmailVerification from "./pages/EmailVerification";
 import SignupVerification from "./pages/SignupVerification";
 import ScrapeMenu from "./pages/ScrapeMenu";
+import UnderConstruction from "./pages/UnderConstruction";
+import { maintenanceConfig } from "@/config/maintenance";
 
 const queryClient = new QueryClient();
 
 const App = () => {
   console.log("App component rendering");
+  
+  // Check if site is under construction
+  if (maintenanceConfig.isUnderConstruction) {
+    return <UnderConstruction />;
+  }
   
   return (
     <QueryClientProvider client={queryClient}>

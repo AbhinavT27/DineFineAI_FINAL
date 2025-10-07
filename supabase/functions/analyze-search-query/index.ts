@@ -43,22 +43,36 @@ serve(async (req) => {
     }
 
     // Check search throttling - 10 searches per day for all users
+    // Get current date in UTC timezone
     const today = new Date().toISOString().split('T')[0];
     
-    // Get or create daily usage record
-    const { data: usageData, error: usageError } = await supabase
-      .from('daily_usage')
-      .select('search_requests')
-      .eq('user_id', user.id)
-      .eq('usage_date', today)
+    // Get user's profile to check daily search requests
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('daily_searchrequests, last_search_reset_date')
+      .eq('id', user.id)
       .single();
 
-    if (usageError && usageError.code !== 'PGRST116') {
-      console.error('Error fetching usage data:', usageError);
-      throw new Error('Failed to check usage limits');
+    if (profileError) {
+      console.error('Error fetching profile:', profileError);
+      throw new Error('Failed to check search limits');
     }
 
-    const currentSearchRequests = usageData?.search_requests || 0;
+    let currentSearchRequests = profile.daily_searchrequests || 0;
+    const lastResetDate = profile.last_search_reset_date;
+
+    // Reset count if it's a new day (UTC timezone)
+    if (lastResetDate !== today) {
+      currentSearchRequests = 0;
+      await supabase
+        .from('profiles')
+        .update({
+          daily_searchrequests: 0,
+          last_search_reset_date: today
+        })
+        .eq('id', user.id);
+      console.log(`Reset daily search count for user ${user.id} - new date: ${today}`);
+    }
     
     // Check if user has exceeded the limit (10 searches per day for all users)
     if (currentSearchRequests >= 10) {
@@ -76,14 +90,11 @@ serve(async (req) => {
 
     // Increment search request count
     await supabase
-      .from('daily_usage')
-      .upsert({
-        user_id: user.id,
-        usage_date: today,
-        search_requests: currentSearchRequests + 1
-      }, {
-        onConflict: 'user_id,usage_date'
-      });
+      .from('profiles')
+      .update({
+        daily_searchrequests: currentSearchRequests + 1
+      })
+      .eq('id', user.id);
 
     console.log(`Search request logged for user ${user.id}: ${currentSearchRequests + 1}/10`);
 

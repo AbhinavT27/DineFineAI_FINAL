@@ -199,11 +199,11 @@ const Welcome = () => {
               </div>
               
               <a 
-                href="mailto:support@dinefineai.com"
+                href="mailto:help.dinefineai@gmail.com"
                 className="flex items-center space-x-2 text-muted-foreground hover:text-foreground transition-colors"
               >
                 <Mail className="w-4 h-4" />
-                <span className="text-sm">support@dinefineai.com</span>
+                <span className="text-sm">help.dinefineai@gmail.com</span>
               </a>
             </div>
           </div>

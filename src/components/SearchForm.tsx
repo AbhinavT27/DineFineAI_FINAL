@@ -16,7 +16,6 @@ import DietaryAndAllergyEditor from './DietaryAndAllergyEditor';
 import { getLocationSuggestions } from '@/services/locationAutocompleteService';
 import { useTranslation } from 'react-i18next';
 import { detectAndTranslateSearchQuery } from '@/services/languageDetectionService';
-import { useSearchThrottle } from '@/hooks/useSearchThrottle';
 
 interface SearchFormProps {
   onSearch: (preferences: UserPreferences) => void;
@@ -26,7 +25,6 @@ interface SearchFormProps {
 const SearchForm: React.FC<SearchFormProps> = ({ onSearch, isLoading = false }) => {
   const { user, userPreferences } = useAuth();
   const { t } = useTranslation();
-  const { checkThrottle } = useSearchThrottle();
   const [searchQuery, setSearchQuery] = useState('');
   const [cuisineType, setCuisineType] = useState('');
   const [priceRange, setPriceRange] = useState<'$' | '$$' | '$$$' | '$$$$' | ''>('');
@@ -45,30 +43,10 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch, isLoading = false }) 
   const [isTranslating, setIsTranslating] = useState(false);
   const [detectedLanguage, setDetectedLanguage] = useState<string>('');
 
-  // Load cached location preferences on mount
+  // Always default to current location on login - don't load cached location preferences
   useEffect(() => {
-    try {
-      const searchPrefs = localStorage.getItem('searchPreferences');
-      if (searchPrefs) {
-        const preferences = JSON.parse(searchPrefs);
-        console.log('Loading search preferences:', preferences);
-        
-        // Only restore manual locations that were explicitly set by the user
-        // Do not restore location if it seems to be a default or incorrect value
-        if (preferences.location && !preferences.useCurrentLocation && preferences.location !== 'Boston, MA') {
-          setUseCurrentLocation(false);
-          setManualLocation(preferences.location);
-          if (preferences.coordinates) {
-            setCoordinates(preferences.coordinates);
-          }
-          console.log('Restored manual location:', preferences.location);
-        }
-        // Do not restore current location coordinates to prevent stale location data
-        // Let the app get fresh location data each time
-      }
-    } catch (error) {
-      console.error('Error loading cached search preferences:', error);
-    }
+    // Deliberately empty - we always want to start with current location
+    // This ensures users always get fresh, accurate location data on login
   }, []);
 
   // Get user's current location when useCurrentLocation is true and no coordinates cached
@@ -220,11 +198,6 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch, isLoading = false }) 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Check throttle first
-    if (!checkThrottle()) {
-      return;
-    }
-    
     // Handle multilingual search
     let finalSearchQuery = searchQuery;
     let extractedDietaryInfo = {};
@@ -356,11 +329,6 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch, isLoading = false }) 
 
   const triggerSearchFromVoice = async (searchText: string) => {
     if (!searchText.trim()) return;
-
-    // Check throttle first
-    if (!checkThrottle()) {
-      return;
-    }
 
     // Validate location requirements
     if (useCurrentLocation && !coordinates && !isGettingLocation) {
@@ -606,7 +574,7 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch, isLoading = false }) 
           <Slider
             value={searchRadius}
             onValueChange={setSearchRadius}
-            max={50}
+            max={5}
             min={1}
             step={1}
             className="w-full"

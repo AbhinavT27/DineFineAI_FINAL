@@ -490,57 +490,69 @@ const MenuItemsDisplay: React.FC<MenuItemsDisplayProps> = ({
       <CardContent className="space-y-4">
         <ScrollArea className={!showFullDetails && isExpanded ? cardHeight : showAllItems ? "h-80" : "h-auto"}>
           <div className="space-y-4 pr-4">
-            {displayedItems.map((item, index) => (
-              <div key={index} className="border-l-2 border-muted pl-3 space-y-2">
-                <div className="flex items-start justify-between">
-                  <h4 className="font-medium text-sm">{item.dish}</h4>
-                  {item.price && (
-                    <span className="text-sm text-muted-foreground">{item.price}</span>
+            {displayedItems.map((item, index) => {
+              // Check if this item has any restricted ingredients
+              const hasRestrictedIngredients = hasRestrictions && item.ingredients.some(ingredient => 
+                isIngredientRestricted(ingredient, userAllergies, userDietaryRestrictions)
+              );
+              
+              return (
+                <div 
+                  key={index} 
+                  className={`border-l-2 pl-3 space-y-2 rounded-lg p-3 ${
+                    hasRestrictedIngredients 
+                      ? 'border-red-500 bg-red-50/50' 
+                      : 'border-muted'
+                  }`}
+                >
+                  <div className="flex items-start justify-between">
+                    <h4 className="font-medium text-sm">{item.dish}</h4>
+                    {item.price && (
+                      <span className="text-sm text-muted-foreground">{item.price}</span>
+                    )}
+                  </div>
+                  
+                  <div className="space-y-1">
+                    <p className="text-xs text-muted-foreground">Ingredients:</p>
+                    <div className="flex flex-wrap gap-1">
+                      {item.ingredients.map((ingredient, idx) => {
+                        // FIXED: Only flag if user has that specific restriction - no false positives
+                        const isRestricted = hasRestrictions && isIngredientRestricted(
+                          ingredient,
+                          userAllergies,
+                          userDietaryRestrictions
+                        );
+                        
+                        return (
+                          <Badge 
+                            key={idx} 
+                            variant={isRestricted ? "destructive" : "secondary"}
+                            className={`text-xs px-2 py-0.5 ${
+                              isRestricted ? 'bg-red-100 text-red-800 border-red-200' : ''
+                            }`}
+                          >
+                            {isRestricted && <AlertTriangle size={10} className="mr-1" />}
+                            {ingredient}
+                          </Badge>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Show restriction warnings only if there are actual matches */}
+                  {hasRestrictedIngredients && (
+                    <div className="bg-red-50 border border-red-200 rounded p-2">
+                      <p className="text-xs text-red-800 font-medium">
+                        ⚠️ Contains ingredients that conflict with your dietary preferences
+                      </p>
+                      <p className="text-xs text-red-600 mt-1">
+                        Please verify with restaurant before ordering
+                      </p>
+                    </div>
                   )}
                 </div>
-                
-                <div className="space-y-1">
-                  <p className="text-xs text-muted-foreground">Ingredients:</p>
-                  <div className="flex flex-wrap gap-1">
-                    {item.ingredients.map((ingredient, idx) => {
-                      // FIXED: Only flag if user has that specific restriction - no false positives
-                      const isRestricted = hasRestrictions && isIngredientRestricted(
-                        ingredient,
-                        userAllergies,
-                        userDietaryRestrictions
-                      );
-                      
-                      return (
-                        <Badge 
-                          key={idx} 
-                          variant={isRestricted ? "destructive" : "secondary"}
-                          className={`text-xs px-2 py-0.5 ${
-                            isRestricted ? 'bg-red-100 text-red-800 border-red-200' : ''
-                          }`}
-                        >
-                          {isRestricted && <AlertTriangle size={10} className="mr-1" />}
-                          {ingredient}
-                        </Badge>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* Show restriction warnings only if there are actual matches */}
-                {hasRestrictions && item.ingredients.some(ingredient => 
-                  isIngredientRestricted(ingredient, userAllergies, userDietaryRestrictions)
-                ) && (
-                  <div className="bg-red-50 border border-red-200 rounded p-2">
-                    <p className="text-xs text-red-800 font-medium">
-                      ⚠️ Contains ingredients that conflict with your dietary preferences
-                    </p>
-                    <p className="text-xs text-red-600 mt-1">
-                      Please verify with restaurant before ordering
-                    </p>
-                  </div>
-                )}
-              </div>
-            ))}
+              );
+            })}
           </div>
         </ScrollArea>
         
