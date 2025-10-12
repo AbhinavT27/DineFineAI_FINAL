@@ -29,8 +29,6 @@ const QuickSearchBar: React.FC<QuickSearchBarProps> = ({
   const [searchQuery, setSearchQuery] = useState('');
   const [useCurrentLocation, setUseCurrentLocation] = useState(true);
   const [manualLocation, setManualLocation] = useState('');
-  const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
-  const [coordinates, setCoordinates] = useState<{ lat: number; lng: number } | null>(null);
   const [currentLocationAddress, setCurrentLocationAddress] = useState<string>('');
   const [isGettingLocation, setIsGettingLocation] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
@@ -45,12 +43,10 @@ const QuickSearchBar: React.FC<QuickSearchBarProps> = ({
     if (currentSearchPreferences) {
       if (currentSearchPreferences.useCurrentLocation) {
         setUseCurrentLocation(true);
-        setCoordinates(currentSearchPreferences.coordinates || null);
         setCurrentLocationAddress(currentSearchPreferences.location || '');
       } else {
         setUseCurrentLocation(false);
         setManualLocation(currentSearchPreferences.location || '');
-        setCoordinates(currentSearchPreferences.coordinates || null);
       }
     }
   }, [currentSearchPreferences]);
@@ -69,17 +65,17 @@ const QuickSearchBar: React.FC<QuickSearchBarProps> = ({
       navigator.geolocation.getCurrentPosition(
         async (position) => {
           clearTimeout(timeoutId);
-          const newCoordinates = {
-            lat: position.coords.latitude,
-            lng: position.coords.longitude
-          };
-          
-          setCoordinates(newCoordinates);
           
           try {
-            const address = await reverseGeocode(newCoordinates.lat, newCoordinates.lng);
-            setCurrentLocationAddress(address);
-            console.log('Current location obtained:', address, newCoordinates);
+            const address = await reverseGeocode(position.coords.latitude, position.coords.longitude);
+            // Use the city name from reverse geocoding
+            if (address && !address.includes('Location:') && !address.match(/\d+\.\d+,\s*-?\d+\.\d+/)) {
+              setCurrentLocationAddress(address);
+              console.log('Current location obtained:', address);
+            } else {
+              setCurrentLocationAddress('Current Location');
+              console.log('Using generic location label');
+            }
           } catch (error) {
             console.error('Error getting address from coordinates:', error);
             setCurrentLocationAddress('Current Location');
@@ -112,36 +108,8 @@ const QuickSearchBar: React.FC<QuickSearchBarProps> = ({
     }
   };
 
-  // Handle manual location input changes and geocoding
-  useEffect(() => {
-    const geocodeManualLocation = async () => {
-      if (!manualLocation.trim() || useCurrentLocation) {
-        return;
-      }
-
-      if (manualLocation.length < 3) {
-        return;
-      }
-
-      setIsLoadingSuggestions(true);
-      
-      try {
-        // Use OpenStreetMap for geocoding
-        const coords = await geocodeLocation(manualLocation);
-        if (coords) {
-          setCoordinates(coords);
-          console.log('Location geocoded:', manualLocation, coords);
-        }
-      } catch (error) {
-        console.error('Error geocoding location:', error);
-      } finally {
-        setIsLoadingSuggestions(false);
-      }
-    };
-
-    const debounceTimer = setTimeout(geocodeManualLocation, 800);
-    return () => clearTimeout(debounceTimer);
-  }, [manualLocation, useCurrentLocation]);
+  // Manual location is now just used directly as a city name
+  // No geocoding needed - we pass the city name directly to the API
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -168,12 +136,18 @@ const QuickSearchBar: React.FC<QuickSearchBarProps> = ({
     }
     setIsTranslating(false);
 
+    // Validate location
+    const locationToUse = useCurrentLocation ? currentLocationAddress : manualLocation.trim();
+    if (!locationToUse) {
+      toast.error('Please provide a location');
+      return;
+    }
+
     // Create search preferences with location and extracted dietary info
     const searchPreferences: UserPreferences = {
       searchQuery: finalSearchQuery,
       useCurrentLocation,
-      location: useCurrentLocation ? currentLocationAddress : manualLocation,
-      coordinates,
+      location: locationToUse,
       cuisineType: (extractedDietaryInfo as any)?.cuisineType || '',
       priceRange: '',
       dietaryRestrictions: (extractedDietaryInfo as any)?.preferences || [],
@@ -274,11 +248,11 @@ const QuickSearchBar: React.FC<QuickSearchBarProps> = ({
     if (!searchText.trim()) return;
 
     // Create search preferences with location
+    const locationToUse = useCurrentLocation ? currentLocationAddress : manualLocation.trim();
     const searchPreferences: UserPreferences = {
       searchQuery: searchText.trim(),
       useCurrentLocation,
-      location: useCurrentLocation ? currentLocationAddress : manualLocation,
-      coordinates,
+      location: locationToUse,
       cuisineType: '',
       priceRange: '',
       dietaryRestrictions: [],
@@ -385,7 +359,6 @@ const QuickSearchBar: React.FC<QuickSearchBarProps> = ({
               onClick={() => {
                 setUseCurrentLocation(false);
                 setCurrentLocationAddress('');
-                setCoordinates(null);
               }}
               disabled={isLoading}
               className="whitespace-nowrap"
@@ -415,9 +388,6 @@ const QuickSearchBar: React.FC<QuickSearchBarProps> = ({
                   className="pl-8 text-xs"
                   disabled={isLoading}
                 />
-                {isLoadingSuggestions && (
-                  <Loader2 className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 animate-spin" size={12} />
-                )}
               </div>
             </div>
           )}

@@ -5,11 +5,7 @@ export interface UserPreferences {
   dietaryRestrictions: string[];
   allergies: string[];
   useCurrentLocation: boolean;
-  location?: string;
-  coordinates?: {
-    lat: number;
-    lng: number;
-  };
+  location?: string; // City name or address
   partySize?: number;
   isGroupDining?: boolean;
   groupSize?: number;

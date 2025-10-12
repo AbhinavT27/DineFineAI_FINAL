@@ -18,60 +18,16 @@ export const filterRestaurants = (
   preferences: UserPreferences,
   userDistanceUnit: string = 'miles'
 ): Restaurant[] => {
-  let filteredRestaurants = restaurants;
-
-  // Filter by search radius if coordinates are available
-  if (preferences.coordinates && preferences.searchRadius) {
-    console.log(`Filtering restaurants within ${preferences.searchRadius} ${userDistanceUnit} radius`);
-    
-    filteredRestaurants = filteredRestaurants.filter(restaurant => {
-      if (!restaurant.coordinates) return true; // Keep restaurants without coordinates
-      
-      const distanceKm = calculateDistance(
-        preferences.coordinates!.lat,
-        preferences.coordinates!.lng,
-        restaurant.coordinates.lat,
-        restaurant.coordinates.lng
-      );
-      
-      // Convert distance based on user's preferred unit
-      const distanceInUserUnit = userDistanceUnit === 'miles' ? kmToMiles(distanceKm) : distanceKm;
-      
-      // Update restaurant distance display to user's preferred unit
-      restaurant.distance = `${distanceInUserUnit.toFixed(1)} ${userDistanceUnit === 'miles' ? 'mi' : 'km'}`;
-      
-      // Check if restaurant is within the specified radius
-      const isWithinRadius = distanceInUserUnit <= preferences.searchRadius!;
-      
-      console.log(`Restaurant: ${restaurant.name}, Distance: ${distanceInUserUnit.toFixed(1)} ${userDistanceUnit}, Within radius: ${isWithinRadius}`);
-      
-      return isWithinRadius;
-    });
-    
-    console.log(`Filtered ${restaurants.length} restaurants to ${filteredRestaurants.length} within ${preferences.searchRadius} ${userDistanceUnit}`);
-  } else {
-    // If no radius filtering, still convert distance display to user's preferred unit
-    filteredRestaurants.forEach(restaurant => {
-      if (restaurant.coordinates && preferences.coordinates) {
-        const distanceKm = calculateDistance(
-          preferences.coordinates.lat,
-          preferences.coordinates.lng,
-          restaurant.coordinates.lat,
-          restaurant.coordinates.lng
-        );
-        
-        const distanceInUserUnit = userDistanceUnit === 'miles' ? kmToMiles(distanceKm) : distanceKm;
-        restaurant.distance = `${distanceInUserUnit.toFixed(1)} ${userDistanceUnit === 'miles' ? 'mi' : 'km'} away`;
-      }
-    });
-  }
+  // Distance filtering is now handled by the Google Places API based on location
+  // Just return the restaurants as-is
+  console.log(`Returning ${restaurants.length} restaurants (distance filtering handled by API)`);
 
   // Note: Dietary restrictions filtering removed because Google Places API 
   // doesn't provide comprehensive dietary options data for most restaurants.
   // This was causing all restaurants to be filtered out.
   // Dietary preferences are handled through menu analysis for individual restaurants.
 
-  return filteredRestaurants;
+  return restaurants;
 };
 
 export const sortRestaurantsByPricePreference = (

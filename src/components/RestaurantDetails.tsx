@@ -22,14 +22,15 @@ import AIAnalysisUpgrade from './AIAnalysisUpgrade';
 interface RestaurantDetailsProps {
   restaurant: Restaurant;
   shouldStartScraping?: boolean;
+  initialMenuItems?: any[];
 }
 
-const RestaurantDetails: React.FC<RestaurantDetailsProps> = ({ restaurant, shouldStartScraping = false }) => {
+const RestaurantDetails: React.FC<RestaurantDetailsProps> = ({ restaurant, shouldStartScraping = false, initialMenuItems = [] }) => {
   const { userPreferences, user } = useAuth();
   const { incrementRestaurantScrape, canScrapeRestaurant, decrementRestaurantScrape } = useFeatureGates();
-  const [menuItems, setMenuItems] = useState<any[]>([]);
+  const [menuItems, setMenuItems] = useState<any[]>(initialMenuItems);
   const [isScrapingMenu, setIsScrapingMenu] = useState(false);
-  const [hasAttemptedScrape, setHasAttemptedScrape] = useState(false);
+  const [hasAttemptedScrape, setHasAttemptedScrape] = useState(initialMenuItems.length > 0);
 
   const handleScrapeMenu = async () => {
     if (isScrapingMenu) {
@@ -373,6 +374,50 @@ const RestaurantDetails: React.FC<RestaurantDetailsProps> = ({ restaurant, shoul
           pros={restaurant.pros || []}
           cons={restaurant.cons || []}
         />
+
+        {/* AI-Generated Menu Below Reviews */}
+        {menuItems.length > 0 && (
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-xl font-semibold">AI-Generated Menu</CardTitle>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleScrapeMenu}
+                  disabled={!canScrapeRestaurant()}
+                >
+                  <RefreshCw size={14} className="mr-2" />
+                  Regenerate Menu
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {menuItems.map((item, index) => (
+                  <Card key={index} className="border border-gray-200">
+                    <CardContent className="p-4">
+                      <h4 className="font-medium text-gray-800 mb-2">{item.dish || item.menu_item}</h4>
+                      {item.ingredients && (
+                        <p className="text-sm text-gray-600 mb-2">
+                          {Array.isArray(item.ingredients) ? item.ingredients.join(', ') : item.ingredients}
+                        </p>
+                      )}
+                      <div className="flex justify-between items-center text-sm">
+                        {item.price && (
+                          <span className="font-semibold text-green-600">{item.price}</span>
+                        )}
+                        {item.calories && (
+                          <span className="text-gray-500">{item.calories} cal</span>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </div>
   );

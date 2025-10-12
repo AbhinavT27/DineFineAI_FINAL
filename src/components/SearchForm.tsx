@@ -184,11 +184,7 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch, isLoading = false }) 
           price_range: preferences.priceRange || null,
           dietary_restrictions: preferences.dietaryRestrictions || null,
           allergies: preferences.allergies || null,
-          location: preferences.location || null,
-          coordinates: preferences.coordinates ? {
-            lat: preferences.coordinates.lat,
-            lng: preferences.coordinates.lng
-          } : null
+          location: preferences.location || null
         });
     } catch (error) {
       console.error('Error saving search to history:', error);
@@ -221,21 +217,9 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch, isLoading = false }) 
       setIsTranslating(false);
     }
     
-    // If using current location but no coordinates, try to get them first
-    if (useCurrentLocation && !coordinates && !isGettingLocation) {
-      toast.error("Please wait for location to be detected or enter your location manually.");
-      getCurrentLocationWithFallback();
-      return;
-    }
-    
-    // If using manual location but no coordinates found, try to geocode
-    if (!useCurrentLocation && manualLocation && !coordinates) {
-      await handleManualLocationSubmit();
-      return;
-    }
-
-    // Ensure we have coordinates for the search
-    if (!coordinates) {
+    // Validate location
+    const locationToUse = useCurrentLocation ? currentLocationAddress : manualLocation;
+    if (!locationToUse || locationToUse.trim() === '') {
       toast.error('Location is required for restaurant search. Please enable location access or enter your location manually.');
       return;
     }
@@ -253,8 +237,7 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch, isLoading = false }) 
         ...((extractedDietaryInfo as any)?.allergies || [])
       ],
       useCurrentLocation,
-      location: useCurrentLocation ? (currentLocationAddress || undefined) : manualLocation,
-      coordinates: coordinates,
+      location: locationToUse,
       searchRadius: searchRadius[0],
     };
 
@@ -355,7 +338,6 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch, isLoading = false }) 
       allergies: userPreferences?.allergies || [],
       useCurrentLocation,
       location: useCurrentLocation ? (currentLocationAddress || undefined) : manualLocation,
-      coordinates: coordinates,
       searchRadius: searchRadius[0],
     };
 

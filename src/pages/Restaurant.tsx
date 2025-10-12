@@ -112,40 +112,11 @@ const Restaurant = () => {
             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-foodRed"></div>
           </div>
         ) : restaurant ? (
-          <>
-            <RestaurantDetails 
-              restaurant={restaurant} 
-              shouldStartScraping={shouldStartScraping}
-            />
-            
-            {/* Display AI-generated menu if available */}
-            {generatedMenu && generatedMenu.length > 0 && (
-              <div className="mt-8 bg-white rounded-lg shadow-md p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-xl font-semibold text-gray-800">
-                    AI-Generated Menu
-                  </h3>
-                  {location.state?.cached && (
-                    <span className="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded">
-                      Cached Result
-                    </span>
-                  )}
-                </div>
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                  {generatedMenu.map((item, index) => (
-                    <div key={index} className="border border-gray-200 rounded-lg p-4">
-                      <h4 className="font-medium text-gray-800 mb-2">{item.menu_item}</h4>
-                      <p className="text-sm text-gray-600 mb-2">{item.ingredients}</p>
-                      <div className="flex justify-between items-center text-sm">
-                        <span className="font-semibold text-green-600">{item.price}</span>
-                        <span className="text-gray-500">{item.calories} cal</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </>
+          <RestaurantDetails 
+            restaurant={restaurant} 
+            shouldStartScraping={shouldStartScraping}
+            initialMenuItems={generatedMenu || []}
+          />
         ) : (
           <div className="h-96 flex items-center justify-center">
             <div className="text-center">

@@ -30,7 +30,10 @@ export const useFeatureGates = () => {
 
     setIsLoading(true);
     try {
-      const today = new Date().toISOString().split('T')[0];
+      // Use UTC date to ensure consistent reset at midnight UTC
+      const now = new Date();
+      const today = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()))
+        .toISOString().split('T')[0];
 
       // Fetch daily usage
       const { data: dailyData, error: dailyError } = await supabase
@@ -116,7 +119,10 @@ export const useFeatureGates = () => {
     }
 
     try {
-      const today = new Date().toISOString().split('T')[0];
+      // Use UTC date to ensure consistent reset at midnight UTC
+      const now = new Date();
+      const today = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()))
+        .toISOString().split('T')[0];
       const { error } = await supabase
         .from('daily_usage')
         .upsert({
@@ -214,7 +220,10 @@ export const useFeatureGates = () => {
     if (!user || !session) return;
 
     try {
-      const today = new Date().toISOString().split('T')[0];
+      // Use UTC date to ensure consistent reset at midnight UTC
+      const now = new Date();
+      const today = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()))
+        .toISOString().split('T')[0];
       const newCount = Math.max(0, dailyUsage.restaurant_scrapes - 1);
       
       const { error } = await supabase
@@ -250,7 +259,10 @@ export const useFeatureGates = () => {
     }
 
     try {
-      const today = new Date().toISOString().split('T')[0];
+      // Use UTC date to ensure consistent reset at midnight UTC
+      const now = new Date();
+      const today = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()))
+        .toISOString().split('T')[0];
       const { error } = await supabase
         .from('daily_usage')
         .upsert({

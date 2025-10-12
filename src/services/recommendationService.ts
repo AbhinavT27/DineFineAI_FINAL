@@ -98,12 +98,12 @@ export const generateRecommendations = async (
   userPreferences: UserPreferences,
   userId: string
 ): Promise<{ forYou: Restaurant[], tryNew: Restaurant[] }> => {
-  console.log('Generating recommendations for user:', userId, 'with location:', userPreferences.coordinates);
+  console.log('Generating recommendations for user:', userId, 'with location:', userPreferences.location);
 
   try {
     // Ensure we have user location
-    if (!userPreferences.coordinates) {
-      console.log('No user coordinates available for recommendations');
+    if (!userPreferences.location) {
+      console.log('No user location available for recommendations');
       return { forYou: [], tryNew: [] };
     }
 

@@ -6,8 +6,8 @@ export const searchRestaurants = async (preferences: UserPreferences): Promise<R
   try {
     console.log('Starting restaurant search with preferences:', preferences);
     
-    if (!preferences.coordinates) {
-      throw new Error('Location coordinates are required for restaurant search');
+    if (!preferences.location) {
+      throw new Error('Location is required for restaurant search');
     }
 
     // Get user's distance unit preference
@@ -38,7 +38,7 @@ export const searchRestaurants = async (preferences: UserPreferences): Promise<R
     // Call Google Places API through our edge function
     const { data, error } = await supabase.functions.invoke('google-places-search', {
       body: {
-        location: `${preferences.coordinates.lat},${preferences.coordinates.lng}`,
+        location: preferences.location,
         radius: radiusInMeters,
         query: preferences.searchQuery || preferences.cuisineType || 'restaurant',
         type: 'restaurant',

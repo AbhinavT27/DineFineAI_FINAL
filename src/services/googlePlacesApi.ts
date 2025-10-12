@@ -19,18 +19,13 @@ export const searchGooglePlacesRestaurants = async (preferences: UserPreferences
     
     console.log(`Search radius: ${radiusInMiles} miles (${radius} meters)`);
     
-    // Handle location properly - prioritize manual location over current location
-    if (!preferences.useCurrentLocation && preferences.location && preferences.coordinates) {
-      // User entered a manual location with coordinates - use coordinates for precise search
-      location = `${preferences.coordinates.lat},${preferences.coordinates.lng}`;
-      console.log('Using manual location coordinates:', location, 'for', preferences.location);
-    } else if (preferences.coordinates) {
-      // Use current location coordinates
-      location = `${preferences.coordinates.lat},${preferences.coordinates.lng}`;
-      console.log('Using current location coordinates:', location);
-    } else {
-      throw new Error('Location coordinates are required for restaurant search');
+    // Use location as city name directly
+    if (!preferences.location) {
+      throw new Error('Location is required for restaurant search');
     }
+    
+    location = preferences.location;
+    console.log('Using location:', location);
     
     // Create more flexible search query - be more permissive
     let query = 'restaurant';

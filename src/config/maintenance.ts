@@ -3,8 +3,8 @@
 
 export const maintenanceConfig = {
   // Toggle this to enable/disable maintenance mode
-  isUnderConstruction: true,
+  isUnderConstruction: false,
   
   // Set the date when users should check back (e.g., "January 15, 2025")
-  checkBackDate: "October 12, 2025",
+  checkBackDate: "October 10, 2025",
 };

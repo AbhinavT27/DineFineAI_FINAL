@@ -38,8 +38,7 @@ export const addSearchToHistory = async (preferences: UserPreferences, userId: s
         cuisine_type: preferences.cuisineType || null,
         price_range: preferences.priceRange || null,
         dietary_restrictions: preferences.dietaryRestrictions,
-        location: preferences.location || null,
-        coordinates: preferences.coordinates
+        location: preferences.location || null
       });
 
     if (error) {

@@ -29,9 +29,9 @@ const Index = () => {
     console.log('Searching with preferences:', searchPreferences);
     
     try {
-      // Ensure we have coordinates for the search
-      if (!searchPreferences.coordinates) {
-        toast.error("Location coordinates are required for restaurant search. Please enable location access or enter your location manually.", {
+      // Ensure we have location for the search
+      if (!searchPreferences.location) {
+        toast.error("Location is required for restaurant search. Please enable location access or enter your location manually.", {
           position: 'top-center',
         });
         return;

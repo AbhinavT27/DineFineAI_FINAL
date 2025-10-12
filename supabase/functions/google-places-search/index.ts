@@ -111,28 +111,18 @@ serve(async (req) => {
     const { location, radius, query, type, partySize } = await req.json();
     console.log('Search parameters:', { location, radius, query, type, partySize });
 
-    // Parse location coordinates
-    const [lat, lng] = location.split(',').map(Number);
+    // Build search query with location
+    const searchQuery = `${query} in ${location}`;
 
-    // Build request body for new Places API - ensure radius is properly applied
+    // Build request body for new Places API using locationBias with region code
     const requestBody = {
-      textQuery: query,
-      locationBias: {
-        circle: {
-          center: {
-            latitude: lat,
-            longitude: lng
-          },
-          radius: Math.min(radius, 50000) // Google Places API max radius is 50km
-        }
-      },
+      textQuery: searchQuery,
       maxResultCount: 30,
       includedType: type,
       languageCode: "en"
     };
 
     console.log('Calling new Google Places API with request body:', JSON.stringify(requestBody));
-    console.log(`Search radius: ${radius} meters (${(radius/1609.34).toFixed(1)} miles)`);
 
     const response = await fetch(`${PLACES_API_BASE_URL}:searchText`, {
       method: 'POST',
@@ -167,17 +157,8 @@ serve(async (req) => {
     const processedResults = await Promise.all(
       data.places.slice(0, 25).map(async (place: any) => {
         try {
-          // Calculate distance and convert to km for consistent processing
-          let distance = 'Unknown';
-          if (place.location) {
-            const distanceKm = calculateDistance(
-              lat,
-              lng,
-              place.location.latitude,
-              place.location.longitude
-            );
-            distance = `${distanceKm.toFixed(1)} km`; // Initial distance in km
-          }
+          // Distance will be calculated on client side if needed
+          const distance = 'Nearby';
 
           // Convert photo references to actual URLs using new API
           const photos = [];

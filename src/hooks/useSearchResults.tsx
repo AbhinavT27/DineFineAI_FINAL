@@ -24,7 +24,6 @@ export const useSearchResults = () => {
     allergies: [],
     useCurrentLocation: false,
     location: '',
-    coordinates: undefined,
     partySize: undefined
   });
   const [filteredResults, setFilteredResults] = useState<Restaurant[]>([]);
@@ -43,7 +42,6 @@ export const useSearchResults = () => {
       allergies: [],
       useCurrentLocation: false,
       location: '',
-      coordinates: undefined,
       partySize: undefined
     };
     
@@ -74,7 +72,6 @@ export const useSearchResults = () => {
             allergies: [],
             useCurrentLocation: false,
             location: '',
-            coordinates: undefined,
             partySize: undefined
           });
         }

@@ -1,222 +1,3 @@
-// import "https://deno.land/x/xhr@0.1.0/mod.ts";
-// import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-// import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-
-// const corsHeaders = {
-//   "Access-Control-Allow-Origin": "*",
-//   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-//   "Access-Control-Allow-Methods": "POST, OPTIONS",
-// };
-
-// const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
-// const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
-// const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
-// const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY") ?? "";
-
-// serve(async (req) => {
-//   // CORS preflight
-//   if (req.method === "OPTIONS") {
-//     return new Response(null, { headers: corsHeaders });
-//   }
-
-//   if (req.method !== "POST") {
-//     return new Response(JSON.stringify({ error: "Only POST is allowed" }), {
-//       status: 405,
-//       headers: { ...corsHeaders, "Content-Type": "application/json" },
-//     });
-//   }
-
-//   try {
-//     console.log("AI Menu retrieval function called");
-
-//     // Require Authorization header (Supabase user JWT)
-//     const authHeader = req.headers.get("Authorization");
-//     if (!authHeader) {
-//       console.error("Missing Authorization header");
-//       return new Response(JSON.stringify({ error: "Missing Authorization header" }), {
-//         status: 401,
-//         headers: { ...corsHeaders, "Content-Type": "application/json" },
-//       });
-//     }
-
-//     if (!OPENAI_API_KEY) {
-//       console.error("OpenAI API key not found");
-//       return new Response(JSON.stringify({ error: "OpenAI API key not configured" }), {
-//         status: 500,
-//         headers: { ...corsHeaders, "Content-Type": "application/json" },
-//       });
-//     }
-
-//     // Supabase clients
-//     const supabaseService = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
-//     const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-//       global: { headers: { Authorization: authHeader } },
-//     });
-
-//     // Authenticate caller
-//     const { data: { user }, error: authError } = await supabase.auth.getUser();
-//     if (authError || !user) {
-//       console.error("Authentication failed:", authError);
-//       return new Response(JSON.stringify({ error: "Authentication failed" }), {
-//         status: 401,
-//         headers: { ...corsHeaders, "Content-Type": "application/json" },
-//       });
-//     }
-
-//     // Parse input
-//     const { restaurantName, location } = await req.json();
-//     if (!restaurantName || !location) {
-//       return new Response(JSON.stringify({ error: "restaurantName and location are required" }), {
-//         status: 400,
-//         headers: { ...corsHeaders, "Content-Type": "application/json" },
-//       });
-//     }
-//     console.log("Processing menu retrieval for:", restaurantName, "in", location);
-
-//     // Cache check
-//     const { data: existingMenu } = await supabaseService
-//       .from("ai_generated_menus")
-//       .select("*")
-//       .eq("restaurant_name", restaurantName)
-//       .eq("location", location)
-//       .single();
-
-//     if (existingMenu) {
-//       console.log("Found existing menu, returning cached result");
-//       return new Response(JSON.stringify({
-//         menuItems: existingMenu.menu_items ?? [],
-//         status: "success",
-//         cached: true,
-//         restaurantName,
-//         location,
-//       }), {
-//         headers: { ...corsHeaders, "Content-Type": "application/json" },
-//       });
-//     }
-
-//     // Use OpenAI API directly with fetch
-//     const systemPrompt = 
-//       "You are a menu generator that creates realistic menu items for restaurants. " +
-//       "Generate 8-12 menu items that would typically be found at this type of restaurant. " +
-//       "For each item, provide: name, ingredients, price, and estimated calories. " +
-//       "Return only a JSON array with no additional text.";
-
-//     const userPrompt = 
-//       `Generate a menu for ${restaurantName} located at ${location}. ` +
-//       `Return a JSON array where each item has: menu_item (string), ingredients (string), ` +
-//       `price (string like "$12.99"), calories (string like "650"), sources (array with one URL), ` +
-//       `ingredients_estimated (true), price_estimated (true), calories_estimated (true).`;
-
-//     const openaiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
-//       method: 'POST',
-//       headers: {
-//         'Authorization': `Bearer ${OPENAI_API_KEY}`,
-//         'Content-Type': 'application/json',
-//       },
-//       body: JSON.stringify({
-//         model: 'gpt-4o-mini',
-//         messages: [
-//           { role: 'system', content: systemPrompt },
-//           { role: 'user', content: userPrompt }
-//         ],
-//         max_tokens: 2000,
-//         temperature: 0.7,
-//       }),
-//     });
-
-//     if (!openaiResponse.ok) {
-//       const errorText = await openaiResponse.text();
-//       console.error(`OpenAI API error: ${openaiResponse.status} - ${errorText}`);
-//       throw new Error(`OpenAI API error: ${openaiResponse.status}`);
-//     }
-
-//     const openaiData = await openaiResponse.json();
-//     const content = openaiData.choices[0]?.message?.content;
-    
-//     if (!content) {
-//       throw new Error('No content received from OpenAI');
-//     }
-
-//     let menuItems: any[] = [];
-//     try {
-//       // Clean the response and parse JSON
-//       const cleanedContent = content
-//         .replace(/^```(?:json)?/i, '')
-//         .replace(/```$/i, '')
-//         .trim();
-      
-//       menuItems = JSON.parse(cleanedContent);
-//       if (!Array.isArray(menuItems)) {
-//         menuItems = [];
-//       }
-//     } catch (parseError) {
-//       console.error("Failed to parse JSON from OpenAI:", parseError);
-//       console.error("Raw content:", content?.slice(0, 300));
-      
-//       // Fallback: create a simple menu
-//       menuItems = [
-//         {
-//           menu_item: "House Special",
-//           ingredients: "Fresh seasonal ingredients",
-//           price: "$18.99",
-//           calories: "650",
-//           sources: [`https://example.com/${restaurantName.toLowerCase().replace(/\s+/g, '-')}-menu`],
-//           ingredients_estimated: true,
-//           price_estimated: true,
-//           calories_estimated: true
-//         }
-//       ];
-//     }
-
-//     // Ensure all items have required fields
-//     menuItems = menuItems.map((item: any) => ({
-//       menu_item: item.menu_item || "Menu Item",
-//       ingredients: item.ingredients || "Various ingredients",
-//       price: item.price || "$12.99",
-//       calories: item.calories || "500",
-//       sources: item.sources || [`https://example.com/menu`],
-//       ingredients_estimated: item.ingredients_estimated ?? true,
-//       price_estimated: item.price_estimated ?? true,
-//       calories_estimated: item.calories_estimated ?? true,
-//     }));
-
-//     // Store in DB
-//     const { error: insertError } = await supabaseService.from("ai_generated_menus").insert({
-//       restaurant_name: restaurantName,
-//       location,
-//       menu_items: menuItems,
-//     });
-
-//     if (insertError) {
-//       console.error("Error storing menu in database:", insertError);
-//     } else {
-//       console.log("Menu stored successfully in database");
-//     }
-
-//     return new Response(JSON.stringify({
-//       menuItems,
-//       status: "success",
-//       cached: false,
-//       restaurantName,
-//       location,
-//       totalItemsGenerated: menuItems.length,
-//     }), {
-//       headers: { ...corsHeaders, "Content-Type": "application/json" },
-//     });
-
-//   } catch (error) {
-//     console.error("Error in generate-ai-menu function:", error);
-//     return new Response(JSON.stringify({
-//       error: error instanceof Error ? error.message : String(error),
-//       menuItems: [],
-//     }), {
-//       status: 500,
-//       headers: { ...corsHeaders, "Content-Type": "application/json" },
-//     });
-//   }
-// });
-
-// deno-lint-ignore-file no-explicit-any
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
@@ -227,212 +8,255 @@ const corsHeaders = {
   "Access-Control-Allow-Methods": "POST, OPTIONS"
 };
 
-const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
+const PERPLEXITY_API_KEY = Deno.env.get("PERPLEXITY_API_KEY");
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
 const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY") ?? "";
 
-/** Strict JSON schema for output (no URLs, no flags) */
+// Schema note: documented for reference; not enforced at runtime
 const MenuItemSchema = {
   type: "object",
   additionalProperties: false,
   properties: {
     menu_item: { type: "string" },
-    ingredients: { type: "string" },
-    price: { type: "string" },    // "$12.99"
-    calories: { type: "string" }  // "650"
+    price: { type: "string" },        // only if stated on source
+    ingredients: { type: "string" },  // AI-generated from name + description
+    calories: { type: "string" },     // AI-estimated if not stated on source
+    citation: { type: "string" }      // direct URL to item/section
   },
-  required: ["menu_item", "ingredients", "price", "calories"]
+  required: ["menu_item", "ingredients", "calories", "citation"]
 };
 
 const ResponseSchema = {
   name: "menu_items_array",
-  schema: {
-    type: "array",
-    items: MenuItemSchema,
-    minItems: 6,
-    maxItems: 24
-  },
+  schema: { type: "array", items: MenuItemSchema, minItems: 1, maxItems: 100 },
   strict: true
 };
 
+// Utility: always return 200 with CORS, embedding ok/error flags
+function ok(body: unknown) {
+  return new Response(JSON.stringify(body), {
+    status: 200,
+    headers: { ...corsHeaders, "Content-Type": "application/json" }
+  });
+}
+
 serve(async (req) => {
-  // CORS preflight
-  if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
-  }
+  // Preflight
+  if (req.method === "OPTIONS") return ok(null);
+
+  // Enforce POST but keep 200 status
   if (req.method !== "POST") {
-    return new Response(JSON.stringify({ error: "Only POST is allowed" }), {
-      status: 405,
-      headers: { ...corsHeaders, "Content-Type": "application/json" }
-    });
+    return ok({ ok: false, error: "Only POST is allowed" });
   }
 
   try {
-    console.log("[AI MENU] Function called");
+    console.log("[AI MENU - PERPLEXITY] Function called");
+
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) {
-      return new Response(JSON.stringify({ error: "Missing Authorization header" }), {
-        status: 401,
-        headers: { ...corsHeaders, "Content-Type": "application/json" }
-      });
-    }
-    if (!OPENAI_API_KEY) {
-      return new Response(JSON.stringify({ error: "OpenAI API key not configured" }), {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" }
-      });
+      return ok({ ok: false, error: "Missing Authorization header" });
     }
 
-    // Supabase clients
+    if (!PERPLEXITY_API_KEY) {
+      return ok({ ok: false, error: "PERPLEXITY_API_KEY not configured" });
+    }
+
+    // Supabase setup
     const supabaseService = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
     const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
       global: { headers: { Authorization: authHeader } }
     });
 
-    // Auth
+    // Auth check (still return 200 on failure)
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     if (authError || !user) {
-      return new Response(JSON.stringify({ error: "Authentication failed" }), {
-        status: 401,
-        headers: { ...corsHeaders, "Content-Type": "application/json" }
-      });
+      return ok({ ok: false, error: "Authentication failed" });
     }
 
     // Input
-    const { restaurantName, location } = await req.json();
-    if (!restaurantName || !location) {
-      return new Response(JSON.stringify({ error: "restaurantName and location are required" }), {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" }
-      });
+    let bodyJson: any = {};
+    try {
+      bodyJson = await req.json();
+    } catch {
+      return ok({ ok: false, error: "Invalid JSON body" });
     }
+    const { restaurantName, location } = bodyJson || {};
+    if (!restaurantName || !location) {
+      return ok({ ok: false, error: "restaurantName and location are required" });
+    }
+
     console.log("[AI MENU] Processing:", restaurantName, "in", location);
 
-    // Cache
-    const { data: existingMenu } = await supabaseService
+    // Cache check
+    const { data: existingMenu, error: cacheErr } = await supabaseService
       .from("ai_generated_menus")
       .select("*")
       .eq("restaurant_name", restaurantName)
       .eq("location", location)
       .single();
 
-    if (existingMenu?.menu_items?.length) {
-      return new Response(JSON.stringify({
-        menuItems: existingMenu.menu_items,
+    if (!cacheErr && existingMenu?.menu_items?.length) {
+      return ok({
+        ok: true,
         status: "success",
         cached: true,
         restaurantName,
-        location
-      }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" }
+        location,
+        menuItems: existingMenu.menu_items,
+        totalItemsGenerated: existingMenu.menu_items.length
       });
     }
 
-    // OpenAI Responses API + web_search tool
-    const systemText =
-      "You are a precise restaurant-menu extractor. " +
-      "Use web_search to find the official, current menu. " +
-      "Return only a JSON array of menu items with: menu_item, ingredients, price, calories. " +
-      "If a value is missing, infer sensibly (e.g., ingredients using common preparation) and still provide a single string; do not include URLs or flags. " +
-      "No prose, no explanations.";
+    // Use Perplexity Chat Completions API with sonar-pro model for menu extraction
+    console.log("[AI MENU] Calling Perplexity Chat Completions API");
+    
+    const systemPrompt = `You are a menu extraction assistant. Extract menu items from web search results and return them as a valid JSON array. 
 
-    const userText =
-      `Restaurant: ${restaurantName}\n` +
-      `Location: ${location}\n` +
-      `Task: Return ONLY a JSON array. Each object has exactly:\n` +
-      `- menu_item (string)\n- ingredients (string)\n- price (string like "$12.99")\n- calories (string like "650")\n` +
-      `Rules:\n` +
-      `1) Use web_search to identify items/prices.\n` +
-      `2) If calories are not published, provide a reasonable single-number estimate as a string.\n` +
-      `3) Ingredients should be a concise comma-separated list (AI-inferred if needed).\n` +
-      `4) Do NOT include URLs or any extra fields.\n` +
-      `5) 8–20 items total is fine.`;
+CRITICAL REQUIREMENTS:
+- You MUST estimate calories for every item (use nutritional knowledge)
+- You MUST infer ingredients from item names and descriptions
+- Never leave ingredients or calories empty
+- Provide realistic calorie estimates based on typical portion sizes`;
+    
+    const userPrompt = `Find all menu items for "${restaurantName}" in "${location}". 
 
-    const response = await fetch("https://api.openai.com/v1/responses", {
+Return ONLY a valid JSON array (no markdown, no explanations) where each entry contains:
+- "menu_item": the dish/menu item name (REQUIRED)
+- "price": the price in dollars (use "" if not found)
+- "ingredients": comma-separated ingredient list inferred from item name/description (REQUIRED - use your knowledge to estimate if not stated)
+- "calories": estimated calories as a number string (REQUIRED - estimate based on typical portions and ingredients, e.g. "450")
+- "citation": URL where this item was found (REQUIRED)
+
+IMPORTANT: 
+- DO NOT leave ingredients or calories empty
+- Use nutritional knowledge to estimate calories realistically
+- Infer likely ingredients from dish names (e.g., "Caesar Salad" → "romaine lettuce, parmesan cheese, croutons, caesar dressing")
+- Return ONLY the JSON array, no explanations`;
+
+    const chatResponse = await fetch("https://api.perplexity.ai/chat/completions", {
       method: "POST",
       headers: {
-        "Authorization": `Bearer ${OPENAI_API_KEY}`,
-        "Content-Type": "application/json",
-        "OpenAI-Beta": "tools=true" // enables hosted tools like web_search
+        "Authorization": `Bearer ${PERPLEXITY_API_KEY}`,
+        "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        model: "gpt-4o-mini",
-        input: [
-          { role: "system", content: [{ type: "text", text: systemText }] },
-          { role: "user",   content: [{ type: "text", text: userText }] }
+        model: "sonar-pro",
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userPrompt }
         ],
-        tools: [{ type: "web_search" }],
-        response_format: { type: "json_schema", json_schema: ResponseSchema },
         temperature: 0.2,
-        max_output_tokens: 3000
+        max_tokens: 4000
       })
     });
 
-    if (!response.ok) {
-      const errText = await response.text();
-      console.error(`[OPENAI] ${response.status}: ${errText}`);
-      throw new Error(`OpenAI API error: ${response.status}`);
+    if (!chatResponse.ok) {
+      const errText = await chatResponse.text();
+      console.error(`[PERPLEXITY] ${chatResponse.status}: ${errText}`);
+      return ok({
+        ok: false,
+        error: `Perplexity API error: ${chatResponse.status}`,
+        debug: { errorBody: errText }
+      });
     }
 
-    const openaiData = await response.json();
-
-    // Prefer output_text with json_schema format
-    let raw = openaiData.output_text as string | undefined;
+    const chatData = await chatResponse.json();
+    let raw = chatData?.choices?.[0]?.message?.content || "";
+    
     if (!raw) {
+      return ok({
+        ok: false,
+        error: "No response from Perplexity Chat API"
+      });
+    }
+
+    console.log("[AI MENU] Received response, parsing JSON...");
+
+    // Attempt to parse raw as JSON; also try to extract a JSON block if wrapped
+    const tryParse = (text: string) => {
       try {
-        const first = openaiData.output?.[0]?.content?.[0];
-        if (first?.type === "output_text") raw = first.text;
-      } catch { /* noop */ }
-    }
-    if (!raw || typeof raw !== "string") {
-      throw new Error("No JSON text returned from OpenAI");
+        return JSON.parse(text);
+      } catch {
+        // Remove markdown code blocks if present
+        let cleaned = text.replace(/```json\s*/gi, '').replace(/```\s*/g, '');
+        try {
+          return JSON.parse(cleaned);
+        } catch {
+          // try to find the first JSON array block
+          const m = cleaned.match(/\[[\s\S]*\]/);
+          if (m) {
+            try { return JSON.parse(m[0]); } catch { /* ignore */ }
+          }
+          return null;
+        }
+      }
+    };
+
+    let menuItems: any[] | null = tryParse(raw);
+    if (!Array.isArray(menuItems)) {
+      console.error("[AI MENU] JSON parse failed; sample:", String(raw).slice(0, 400));
+      return ok({
+        ok: false,
+        error: "Failed to parse Perplexity Search JSON answer.",
+        debug: { sample: String(raw).slice(0, 400) }
+      });
     }
 
-    let menuItems: any[] = [];
-    try {
-      menuItems = JSON.parse(raw);
-      if (!Array.isArray(menuItems)) throw new Error("Not an array");
-    } catch {
-      console.error("[AI MENU] JSON parse failed; sample:", raw.slice(0, 400));
-      throw new Error("Failed to parse model JSON");
-    }
-
-    // Minimal normalization / safety
+    // Normalize output and validate required fields
     menuItems = menuItems.map((item: any) => ({
-      menu_item: item.menu_item ?? "Menu Item",
-      ingredients: item.ingredients ?? "Ingredients unavailable",
-      price: item.price ?? "$12.99",
-      calories: item.calories ?? "500"
-    }));
+      menu_item: typeof item.menu_item === "string" ? item.menu_item : "",
+      price: typeof item.price === "string" ? item.price : "",
+      ingredients: typeof item.ingredients === "string" ? item.ingredients : "",
+      calories: typeof item.calories === "string" ? item.calories : "",
+      citation: typeof item.citation === "string" ? item.citation : ""
+    })).filter(item => 
+      // Filter out items missing critical fields
+      item.menu_item && item.ingredients && item.calories
+    );
 
     // Store result
-    const { error: insertError } = await supabaseService.from("ai_generated_menus").insert({
-      restaurant_name: restaurantName,
-      location,
-      menu_items: menuItems
-    });
-    if (insertError) console.warn("[AI MENU] DB insert warning:", insertError);
+    const { error: insertError } = await supabaseService
+      .from("ai_generated_menus")
+      .insert({
+        restaurant_name: restaurantName,
+        location,
+        menu_items: menuItems
+      });
 
-    return new Response(JSON.stringify({
-      menuItems,
+    if (insertError) {
+      console.warn("[AI MENU] DB insert warning:", insertError);
+      // Still 200, but communicate the warning
+      return ok({
+        ok: true,
+        status: "partial_success",
+        cached: false,
+        restaurantName,
+        location,
+        menuItems,
+        totalItemsGenerated: menuItems.length,
+        dbWarning: insertError
+      });
+    }
+
+    // Success
+    return ok({
+      ok: true,
       status: "success",
       cached: false,
       restaurantName,
       location,
+      menuItems,
       totalItemsGenerated: menuItems.length
-    }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" }
     });
 
   } catch (error) {
     console.error("[AI MENU] Error:", error);
-    return new Response(JSON.stringify({
+    // Always 200; surface error details in body
+    return ok({
+      ok: false,
       error: error instanceof Error ? error.message : String(error),
       menuItems: []
-    }), {
-      status: 500,
-      headers: { ...corsHeaders, "Content-Type": "application/json" }
     });
   }
 });

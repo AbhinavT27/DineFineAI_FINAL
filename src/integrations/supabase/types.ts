@@ -295,12 +295,15 @@ export type Database = {
       }
       profiles: {
         Row: {
+          age: number | null
           allergies: string[] | null
           created_at: string
           daily_searchrequests: number
           dietary_preferences: string[] | null
           distance_unit: string | null
           email: string
+          health_goals: string[] | null
+          height: number | null
           id: string
           language: string
           last_search_reset_date: string
@@ -309,14 +312,18 @@ export type Database = {
           updated_at: string
           usecurrentlocation: boolean | null
           username: string
+          weight: number | null
         }
         Insert: {
+          age?: number | null
           allergies?: string[] | null
           created_at?: string
           daily_searchrequests?: number
           dietary_preferences?: string[] | null
           distance_unit?: string | null
           email: string
+          health_goals?: string[] | null
+          height?: number | null
           id: string
           language?: string
           last_search_reset_date?: string
@@ -325,14 +332,18 @@ export type Database = {
           updated_at?: string
           usecurrentlocation?: boolean | null
           username: string
+          weight?: number | null
         }
         Update: {
+          age?: number | null
           allergies?: string[] | null
           created_at?: string
           daily_searchrequests?: number
           dietary_preferences?: string[] | null
           distance_unit?: string | null
           email?: string
+          health_goals?: string[] | null
+          height?: number | null
           id?: string
           language?: string
           last_search_reset_date?: string
@@ -341,6 +352,7 @@ export type Database = {
           updated_at?: string
           usecurrentlocation?: boolean | null
           username?: string
+          weight?: number | null
         }
         Relationships: []
       }
@@ -879,6 +891,10 @@ export type Database = {
           id: string
           username: string
         }[]
+      }
+      reset_daily_search_requests: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
       }
       reset_daily_usage: {
         Args: Record<PropertyKey, never>
