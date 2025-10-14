@@ -177,7 +177,7 @@ const Welcome = () => {
                   <span className="text-sm">DineFineAI</span>
                 </a>
                 <a 
-                  href="https://tiktok.com/@DineFineAI" 
+                  href="https://tiktok.com/@DineFine_AI" 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="flex items-center space-x-2 text-muted-foreground hover:text-foreground transition-colors"
