@@ -9,6 +9,7 @@ import { ComparisonProvider } from "@/contexts/ComparisonContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import RedirectIfAuthenticated from "@/components/RedirectIfAuthenticated";
+import { AppLayout } from "@/components/AppLayout";
 import Welcome from "./pages/Welcome";
 import Pricing from "./pages/Pricing";
 import CurrentPlan from "./pages/CurrentPlan";
@@ -63,7 +64,9 @@ const App = () => {
                   path="/home" 
                   element={
                     <ProtectedRoute>
-                      <Index />
+                      <AppLayout>
+                        <Index />
+                      </AppLayout>
                     </ProtectedRoute>
                   } 
                 />
@@ -71,43 +74,59 @@ const App = () => {
                   path="/search-results" 
                   element={
                     <ProtectedRoute>
-                      <SearchResults />
+                      <AppLayout>
+                        <SearchResults />
+                      </AppLayout>
                     </ProtectedRoute>
                   } 
                 />
                 <Route path="/restaurant/:id" element={
                   <ProtectedRoute>
-                    <Restaurant />
+                    <AppLayout>
+                      <Restaurant />
+                    </AppLayout>
                   </ProtectedRoute>
                 } />
                 <Route path="/comparison" element={
                   <ProtectedRoute>
-                    <Comparison />
+                    <AppLayout>
+                      <Comparison />
+                    </AppLayout>
                   </ProtectedRoute>
                 } />
                 <Route path="/profile" element={
                   <ProtectedRoute>
-                    <Profile />
+                    <AppLayout>
+                      <Profile />
+                    </AppLayout>
                   </ProtectedRoute>
                 } />
                 <Route path="/saved-list" element={
                   <ProtectedRoute>
-                    <SavedList />
+                    <AppLayout>
+                      <SavedList />
+                    </AppLayout>
                   </ProtectedRoute>
                 } />
                 <Route path="/history" element={
                   <ProtectedRoute>
-                    <History />
+                    <AppLayout>
+                      <History />
+                    </AppLayout>
                   </ProtectedRoute>
                  } />
                 <Route path="/scrape-menu" element={
                   <ProtectedRoute>
-                    <ScrapeMenu />
+                    <AppLayout>
+                      <ScrapeMenu />
+                    </AppLayout>
                   </ProtectedRoute>
                 } />
                 <Route path="/current-plan" element={
                   <ProtectedRoute>
-                    <CurrentPlan />
+                    <AppLayout>
+                      <CurrentPlan />
+                    </AppLayout>
                   </ProtectedRoute>
                 } />
                 <Route path="/terms-of-service" element={<TermsOfService />} />

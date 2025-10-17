@@ -109,18 +109,53 @@ serve(async (req) => {
     console.log('Google Places API key found, proceeding with search');
 
     const { location, radius, query, type, partySize } = await req.json();
-    console.log('Search parameters:', { location, radius, query, type, partySize });
+    
+    // Convert miles/km to meters
+    const radiusInMeters = radius || 8046.7; // Default 5 miles
+    console.log('Search radius:', radiusInMeters, 'meters', `(${(radiusInMeters / 1609.34).toFixed(1)} miles)`);
+    
+    // Geocode the location to get coordinates
+    let coordinates = null;
+    if (location) {
+      try {
+        const geocodeResponse = await fetch(
+          `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(location)}&key=${GOOGLE_PLACES_API_KEY}`
+        );
+        
+        if (geocodeResponse.ok) {
+          const geocodeData = await geocodeResponse.json();
+          if (geocodeData.results && geocodeData.results.length > 0) {
+            const { lat, lng } = geocodeData.results[0].geometry.location;
+            coordinates = { latitude: lat, longitude: lng };
+            console.log('Geocoded location:', location, 'to coordinates:', coordinates);
+          } else {
+            console.error('No geocoding results for location:', location);
+          }
+        }
+      } catch (error) {
+        console.error('Error geocoding location:', error);
+      }
+    }
+    
+    console.log('Search parameters:', { location, radius: radiusInMeters, query, type, partySize });
 
-    // Build search query with location
-    const searchQuery = `${query} in ${location}`;
-
-    // Build request body for new Places API using locationBias with region code
-    const requestBody = {
-      textQuery: searchQuery,
+    // Build request body for new Places API
+    const requestBody: any = {
+      textQuery: query,
       maxResultCount: 30,
       includedType: type,
       languageCode: "en"
     };
+    
+    // Add location bias if we have coordinates
+    if (coordinates) {
+      requestBody.locationBias = {
+        circle: {
+          center: coordinates,
+          radius: radiusInMeters
+        }
+      };
+    }
 
     console.log('Calling new Google Places API with request body:', JSON.stringify(requestBody));
 

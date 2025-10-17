@@ -24,9 +24,9 @@ const DailySearchIndicator: React.FC = () => {
 
     fetchDailySearches();
 
-    // Subscribe to changes
+    // Subscribe to changes with unique channel name to avoid conflicts
     const channel = supabase
-      .channel('profile-search-changes')
+      .channel(`profile-search-updates-${user?.id}`)
       .on(
         'postgres_changes',
         {
@@ -36,13 +36,18 @@ const DailySearchIndicator: React.FC = () => {
           filter: `id=eq.${user?.id}`,
         },
         (payload) => {
+          console.log('Daily search count updated:', payload.new.daily_searchrequests);
           setDailySearches(payload.new.daily_searchrequests || 0);
         }
       )
       .subscribe();
 
+    // Also set up a polling fallback to ensure updates are caught
+    const pollInterval = setInterval(fetchDailySearches, 3000);
+
     return () => {
       supabase.removeChannel(channel);
+      clearInterval(pollInterval);
     };
   }, [user]);
 

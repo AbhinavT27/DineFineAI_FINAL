@@ -294,26 +294,32 @@ const RestaurantDetails: React.FC<RestaurantDetailsProps> = ({ restaurant, shoul
                       <Card key={index} className="border-l-2 border-muted">
                         <CardHeader className="pb-2">
                           <div className="flex items-start justify-between">
-                            <CardTitle className="text-sm">{item.dish}</CardTitle>
+                            <CardTitle className="text-sm">
+                              {item.dish || item.menu_item || item.name || item.item || 'Menu Item'}
+                            </CardTitle>
                             {item.price && (
                               <span className="text-sm text-muted-foreground">{item.price}</span>
                             )}
                           </div>
                         </CardHeader>
                         <CardContent className="pt-0 space-y-2">
-                          {item.ingredients && item.ingredients.length > 0 && (
+                          {item.ingredients && (
                             <div className="space-y-1">
                               <p className="text-xs text-muted-foreground">Ingredients:</p>
                               <div className="flex flex-wrap gap-1">
-                                {item.ingredients.map((ingredient: string, idx: number) => (
-                                  <Badge 
-                                    key={idx} 
-                                    variant="secondary"
-                                    className="text-xs px-2 py-0.5"
-                                  >
-                                    {ingredient}
-                                  </Badge>
-                                ))}
+                                {Array.isArray(item.ingredients) ? (
+                                  item.ingredients.map((ingredient: string, idx: number) => (
+                                    <Badge 
+                                      key={idx} 
+                                      variant="secondary"
+                                      className="text-xs px-2 py-0.5"
+                                    >
+                                      {ingredient}
+                                    </Badge>
+                                  ))
+                                ) : (
+                                  <p className="text-xs text-muted-foreground">{item.ingredients}</p>
+                                )}
                               </div>
                             </div>
                           )}
@@ -397,7 +403,9 @@ const RestaurantDetails: React.FC<RestaurantDetailsProps> = ({ restaurant, shoul
                 {menuItems.map((item, index) => (
                   <Card key={index} className="border border-gray-200">
                     <CardContent className="p-4">
-                      <h4 className="font-medium text-gray-800 mb-2">{item.dish || item.menu_item}</h4>
+                      <h4 className="font-medium text-gray-800 mb-2">
+                        {item.dish || item.menu_item || item.name || item.item || 'Menu Item'}
+                      </h4>
                       {item.ingredients && (
                         <p className="text-sm text-gray-600 mb-2">
                           {Array.isArray(item.ingredients) ? item.ingredients.join(', ') : item.ingredients}

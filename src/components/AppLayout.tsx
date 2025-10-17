@@ -12,19 +12,25 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // If user is over limit and not on saved-list page, redirect them
+  // If user is over limit and not on allowed pages, redirect them to saved-list
   React.useEffect(() => {
-    if (isOverSavedRestaurantLimit() && !location.pathname.includes('/saved-list')) {
+    const allowedPaths = ['/saved-list', '/profile', '/current-plan'];
+    const isOnAllowedPath = allowedPaths.some(path => location.pathname.includes(path));
+    
+    if (isOverSavedRestaurantLimit() && !isOnAllowedPath) {
       navigate('/saved-list', { replace: true });
     }
   }, [isOverSavedRestaurantLimit, location.pathname, navigate]);
 
-  // If user is over their limit, only show the warning and saved restaurants page
+  // If user is over their limit, only show the warning and allowed pages
   if (isOverSavedRestaurantLimit()) {
+    const allowedPaths = ['/saved-list', '/profile', '/current-plan'];
+    const isOnAllowedPath = allowedPaths.some(path => location.pathname.includes(path));
+    
     return (
       <div className="min-h-screen">
         <DowngradeWarning />
-        {location.pathname.includes('/saved-list') ? children : null}
+        {isOnAllowedPath ? children : null}
       </div>
     );
   }
