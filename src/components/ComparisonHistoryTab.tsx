@@ -2,14 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Trash2, Calendar, Users } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Trash2, Calendar, Users, Info } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { ComparisonHistory, getComparisonHistory, deleteComparisonHistory } from '@/services/comparisonHistoryService';
 import { useToast } from '@/hooks/use-toast';
 import { Link } from 'react-router-dom';
 import StarRating from '@/components/StarRating';
 import { SaveHistoryButton } from '@/components/SaveHistoryButton';
-import { HistoryAutoDeleteNotice } from '@/components/HistoryAutoDeleteNotice';
 
 const ComparisonHistoryTab = () => {
   const [comparisonHistory, setComparisonHistory] = useState<ComparisonHistory[]>([]);
@@ -96,7 +96,12 @@ const ComparisonHistoryTab = () => {
 
   return (
     <div className="space-y-4">
-      <HistoryAutoDeleteNotice />
+      <Alert className="mb-4">
+        <Info className="h-4 w-4" />
+        <AlertDescription>
+          History items are automatically deleted after 1 day to keep your data fresh.
+        </AlertDescription>
+      </Alert>
       {comparisonHistory.map((comparison) => (
         <Card key={comparison.id} className="hover:shadow-md transition-shadow">
           <CardHeader className="pb-3">

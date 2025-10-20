@@ -302,6 +302,7 @@ export type Database = {
           dietary_preferences: string[] | null
           distance_unit: string | null
           email: string
+          gender: string | null
           health_goals: string[] | null
           height: number | null
           id: string
@@ -322,6 +323,7 @@ export type Database = {
           dietary_preferences?: string[] | null
           distance_unit?: string | null
           email: string
+          gender?: string | null
           health_goals?: string[] | null
           height?: number | null
           id: string
@@ -342,6 +344,7 @@ export type Database = {
           dietary_preferences?: string[] | null
           distance_unit?: string | null
           email?: string
+          gender?: string | null
           health_goals?: string[] | null
           height?: number | null
           id?: string
@@ -835,6 +838,10 @@ export type Database = {
         Returns: undefined
       }
       cleanup_expired_password_otps: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      cleanup_old_ai_generated_menus: {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }

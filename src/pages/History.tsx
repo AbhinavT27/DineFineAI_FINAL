@@ -8,6 +8,7 @@ import { ArrowLeft } from 'lucide-react';
 import RestaurantHistoryTab from '@/components/RestaurantHistoryTab';
 import SearchHistoryTab from '@/components/SearchHistoryTab';
 import ComparisonHistoryTab from '@/components/ComparisonHistoryTab';
+import MenuHistoryTab from '@/components/MenuHistoryTab';
 
 const History = () => {
   return (
@@ -29,10 +30,11 @@ const History = () => {
         </div>
 
         <Tabs defaultValue="restaurants" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="restaurants">Restaurant History</TabsTrigger>
             <TabsTrigger value="searches">Search History</TabsTrigger>
             <TabsTrigger value="comparisons">Comparison History</TabsTrigger>
+            <TabsTrigger value="menus">Menu History</TabsTrigger>
           </TabsList>
           
           <TabsContent value="restaurants" className="mt-6">
@@ -45,6 +47,10 @@ const History = () => {
           
           <TabsContent value="comparisons" className="mt-6">
             <ComparisonHistoryTab />
+          </TabsContent>
+          
+          <TabsContent value="menus" className="mt-6">
+            <MenuHistoryTab />
           </TabsContent>
         </Tabs>
       </div>
