@@ -192,8 +192,33 @@ serve(async (req) => {
     const processedResults = await Promise.all(
       data.places.slice(0, 25).map(async (place: any) => {
         try {
-          // Distance will be calculated on client side if needed
-          const distance = 'Nearby';
+          // Calculate distance from user's location if coordinates are available
+          let distance = 'Nearby';
+          if (coordinates && place.location) {
+            const distanceInKm = calculateDistance(
+              coordinates.latitude,
+              coordinates.longitude,
+              place.location.latitude,
+              place.location.longitude
+            );
+            
+            // Format distance based on user's distance unit preference
+            // We'll get this from the profile query earlier
+            const { data: userProfile } = await supabase
+              .from('profiles')
+              .select('distance_unit')
+              .eq('id', user.id)
+              .single();
+            
+            const distanceUnit = userProfile?.distance_unit || 'miles';
+            
+            if (distanceUnit === 'miles') {
+              const distanceInMiles = distanceInKm * 0.621371;
+              distance = `${distanceInMiles.toFixed(1)} mi away`;
+            } else {
+              distance = `${distanceInKm.toFixed(1)} km away`;
+            }
+          }
 
           // Convert photo references to actual URLs using new API
           const photos = [];

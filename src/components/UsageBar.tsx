@@ -43,18 +43,19 @@ const UsageBar: React.FC = () => {
 
   return (
     <div className={`bg-gradient-to-r ${getPlanColor()} border-b`}>
-      <div className="container mx-auto px-4 py-3">
-        <div className="flex items-center justify-center gap-6">
-          <div className="flex items-center gap-3 text-white">
-            {subscription_tier === 'premium' && <Crown className="h-5 w-5" />}
-            <span className="text-sm font-medium">
-              {subscription_tier === 'premium' ? 'Premium Plan' : `${subscription_tier.charAt(0).toUpperCase() + subscription_tier.slice(1)} Plan`} - Daily Scrapes
+      <div className="container mx-auto px-2 sm:px-4 py-2 sm:py-3">
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6">
+          <div className="flex items-center gap-2 sm:gap-3 text-white">
+            {subscription_tier === 'premium' && <Crown className="h-4 w-4 sm:h-5 sm:w-5" />}
+            <span className="text-xs sm:text-sm font-medium text-center">
+              {subscription_tier === 'premium' ? 'Premium' : subscription_tier.charAt(0).toUpperCase() + subscription_tier.slice(1)} Plan
+              <span className="hidden sm:inline"> - Daily Scrapes</span>
             </span>
           </div>
           
           {/* Circular Progress */}
-          <div className="relative w-16 h-16">
-            <svg className="w-16 h-16 transform -rotate-90" viewBox="0 0 50 50">
+          <div className="relative w-12 h-12 sm:w-16 sm:h-16">
+            <svg className="w-12 h-12 sm:w-16 sm:h-16 transform -rotate-90" viewBox="0 0 50 50">
               {/* Background circle */}
               <circle
                 cx="25"
@@ -81,18 +82,18 @@ const UsageBar: React.FC = () => {
             {/* Center content */}
             <div className="absolute inset-0 flex items-center justify-center">
               {dailyScrapesLimit === -1 ? (
-                <Infinity className="h-6 w-6 text-white" />
+                <Infinity className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
               ) : (
-                <span className="text-white font-bold text-sm">{remainingScrapes}</span>
+                <span className="text-white font-bold text-xs sm:text-sm">{remainingScrapes}</span>
               )}
             </div>
           </div>
           
-          <div className="text-white text-xs">
+          <div className="text-white text-[10px] sm:text-xs">
             {dailyScrapesLimit === -1 ? (
-              <span className="font-medium">Unlimited scrapes</span>
+              <span className="font-medium">Unlimited</span>
             ) : (
-              <span>{remainingScrapes} remaining today</span>
+              <span className="whitespace-nowrap">{remainingScrapes} left</span>
             )}
           </div>
         </div>

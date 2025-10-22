@@ -64,10 +64,10 @@ const DailySearchIndicator: React.FC = () => {
   const strokeDashoffset = circumference - (usagePercentage / 100) * circumference;
 
   return (
-    <div className="flex items-center gap-2">
-      <span className="text-xs text-muted-foreground font-medium">Daily Searches Left:</span>
-      <div className="relative w-12 h-12">
-        <svg className="w-12 h-12 transform -rotate-90" viewBox="0 0 40 40">
+    <div className="flex items-center gap-1 sm:gap-2">
+      <span className="text-[10px] sm:text-xs text-muted-foreground font-medium whitespace-nowrap">Searches:</span>
+      <div className="relative w-10 h-10 sm:w-12 sm:h-12">
+        <svg className="w-10 h-10 sm:w-12 sm:h-12 transform -rotate-90" viewBox="0 0 40 40">
           {/* Background circle */}
           <circle
             cx="20"

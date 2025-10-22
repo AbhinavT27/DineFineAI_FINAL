@@ -30,11 +30,11 @@ const History = () => {
         </div>
 
         <Tabs defaultValue="restaurants" className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="restaurants">Restaurant History</TabsTrigger>
-            <TabsTrigger value="searches">Search History</TabsTrigger>
-            <TabsTrigger value="comparisons">Comparison History</TabsTrigger>
-            <TabsTrigger value="menus">Menu History</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-2 gap-2 h-auto">
+            <TabsTrigger value="restaurants" className="text-xs sm:text-sm">Restaurant History</TabsTrigger>
+            <TabsTrigger value="searches" className="text-xs sm:text-sm">Search History</TabsTrigger>
+            <TabsTrigger value="comparisons" className="text-xs sm:text-sm">Comparison History</TabsTrigger>
+            <TabsTrigger value="menus" className="text-xs sm:text-sm">Menu History</TabsTrigger>
           </TabsList>
           
           <TabsContent value="restaurants" className="mt-6">
