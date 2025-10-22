@@ -201,11 +201,18 @@ const Auth = () => {
   };
 
   
-  return <div className="container max-w-md mx-auto px-4 py-12">
-      <Card>
-        <CardHeader className="space-y-1">
+  return <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-muted/20 px-4 py-12">
+      <Card className="w-full max-w-md shadow-lg">
+        <CardHeader className="space-y-4">
+          <div className="flex justify-center mb-2">
+            <img 
+              src="/DineFineAI_logo_transparent.png" 
+              alt="DineFineAI Logo" 
+              className="h-24 w-auto object-contain"
+            />
+          </div>
           <CardTitle className="text-2xl text-center">
-            {t('auth.welcomeTo')} <Logo linkTo={false} size="lg" className="inline" />
+            {isSignIn ? t('auth.login') : t('auth.signUp')}
           </CardTitle>
           <CardDescription className="text-center">{t('auth.tagline')}</CardDescription>
         </CardHeader>

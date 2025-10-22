@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 
 interface LogoProps {
   linkTo?: boolean;
-  size?: 'sm' | 'md' | 'lg' | 'xl';
+  size?: 'sm' | 'md' | 'lg' | 'xl' | '2xl';
   className?: string;
 }
 
@@ -15,6 +15,7 @@ const Logo = ({ linkTo = true, size = 'md', className = '' }: LogoProps) => {
     'md': 'text-xl',
     'lg': 'text-2xl',
     'xl': 'text-3xl',
+    '2xl': 'text-4xl',
   }[size];
   
   const logoText = (

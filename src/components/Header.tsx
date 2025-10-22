@@ -1,5 +1,4 @@
 
-import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -17,12 +16,13 @@ import PlanIndicator from './PlanIndicator';
 import HeaderUsageIndicator from './HeaderUsageIndicator';
 import DailySearchIndicator from './DailySearchIndicator';
 import { useTranslation } from 'react-i18next';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const Header = () => {
   const { t } = useTranslation();
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
-  
+  const isMobile = useIsMobile();
 
   const handleSignOut = async () => {
     await signOut();
@@ -41,67 +41,69 @@ const Header = () => {
               {user && <PlanIndicator />}
             </div>
 
-            {/* Mobile: Show menu on the right */}
-            <nav className="flex sm:hidden items-center space-x-2">
-              {user ? (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon">
-                      <User className="h-5 w-5" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-48">
-                    <DropdownMenuItem asChild>
-                      <Link to="/profile" className="flex items-center">
-                        <User className="mr-2 h-4 w-4" />
-                        {t('navigation.profile')}
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link to="/saved-list" className="flex items-center">
-                        <Heart className="mr-2 h-4 w-4" />
-                        {t('navigation.savedList')}
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link to="/history" className="flex items-center">
-                        <Clock className="mr-2 h-4 w-4" />
-                        {t('navigation.history')}
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link to="/current-plan" className="flex items-center">
-                        <Crown className="mr-2 h-4 w-4" />
-                        {t('navigation.currentPlan')}
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={handleSignOut}>
-                      <LogOut className="mr-2 h-4 w-4" />
-                      {t('navigation.logout')}
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              ) : (
-                <Button asChild variant="default" size="sm" className="bg-foodRed hover:bg-foodRed/90">
-                  <Link to="/auth">{t('navigation.signIn')}</Link>
-                </Button>
-              )}
-            </nav>
+            {/* Mobile/Tablet: Hide menu (bottom nav will be used instead) */}
+            {!isMobile && (
+              <nav className="flex lg:hidden items-center space-x-2">
+                {user ? (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon">
+                        <User className="h-5 w-5" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-48">
+                      <DropdownMenuItem asChild>
+                        <Link to="/profile" className="flex items-center">
+                          <User className="mr-2 h-4 w-4" />
+                          {t('navigation.profile')}
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link to="/saved-list" className="flex items-center">
+                          <Heart className="mr-2 h-4 w-4" />
+                          {t('navigation.savedList')}
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link to="/history" className="flex items-center">
+                          <Clock className="mr-2 h-4 w-4" />
+                          {t('navigation.history')}
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link to="/current-plan" className="flex items-center">
+                          <Crown className="mr-2 h-4 w-4" />
+                          {t('navigation.currentPlan')}
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={handleSignOut}>
+                        <LogOut className="mr-2 h-4 w-4" />
+                        {t('navigation.logout')}
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                ) : (
+                  <Button asChild variant="default" size="sm" className="bg-foodRed hover:bg-foodRed/90">
+                    <Link to="/auth">{t('navigation.signIn')}</Link>
+                  </Button>
+                )}
+              </nav>
+            )}
           </div>
 
           {user && (
             <div className="flex items-center justify-center gap-2 sm:gap-6 w-full sm:w-auto sm:flex-1">
               <DailySearchIndicator />
               <HeaderUsageIndicator />
-              <div className="sm:hidden">
+              <div className="lg:hidden">
                 <AppFeedback />
               </div>
             </div>
           )}
           
           {/* Desktop: Show menu on the right */}
-          <nav className="hidden sm:flex items-center space-x-4">
+          <nav className="hidden lg:flex items-center space-x-4">
             <AppFeedback />
             {user ? (
               <DropdownMenu>

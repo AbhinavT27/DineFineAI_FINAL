@@ -97,8 +97,8 @@ const MenuHistoryTab = () => {
               <p className="text-sm font-semibold">
                 {Array.isArray(menu.menu_items) ? menu.menu_items.length : 0} menu items found
               </p>
-              <div className="max-h-60 overflow-y-auto space-y-2">
-                {Array.isArray(menu.menu_items) && menu.menu_items.slice(0, 10).map((item: any, idx: number) => (
+              <div className="max-h-96 overflow-y-auto space-y-2">
+                {Array.isArray(menu.menu_items) && menu.menu_items.map((item: any, idx: number) => (
                   <div key={idx} className="border-l-2 border-primary/20 pl-3 py-1">
                     <p className="font-medium text-sm">{item.menu_item || item.name}</p>
                     {item.ingredients && (
@@ -115,11 +115,6 @@ const MenuHistoryTab = () => {
                     )}
                   </div>
                 ))}
-                {Array.isArray(menu.menu_items) && menu.menu_items.length > 10 && (
-                  <p className="text-xs text-muted-foreground italic">
-                    + {menu.menu_items.length - 10} more items
-                  </p>
-                )}
               </div>
             </div>
           </CardContent>
