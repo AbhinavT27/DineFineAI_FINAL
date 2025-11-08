@@ -36,7 +36,7 @@ const CurrentPlan = () => {
     },
     {
       name: "Pro",
-      price: "$5",
+      price: "$4.99",
       period: "per month",
       description: "For regular restaurant explorers",
       features: [
@@ -54,7 +54,7 @@ const CurrentPlan = () => {
     },
     {
       name: "Premium",
-      price: "$10",
+      price: "$9.99",
       period: "per month",
       description: "For food enthusiasts who want it all",
       features: [

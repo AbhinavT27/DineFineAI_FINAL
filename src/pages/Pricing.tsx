@@ -170,7 +170,7 @@ const Pricing = () => {
               <CardHeader className="text-center pb-8">
                 <h3 className="text-2xl font-bold mb-2">Pro</h3>
                 <div className="mb-4">
-                  <span className="text-4xl font-bold">$5</span>
+                  <span className="text-4xl font-bold">$4.99</span>
                   <span className="text-muted-foreground ml-2">per month</span>
                 </div>
                 <p className="text-muted-foreground">For regular restaurant explorers</p>
@@ -222,7 +222,7 @@ const Pricing = () => {
               <CardHeader className="text-center pb-8">
                 <h3 className="text-2xl font-bold mb-2">Premium</h3>
                 <div className="mb-4">
-                  <span className="text-4xl font-bold">$10</span>
+                  <span className="text-4xl font-bold">$9.99</span>
                   <span className="text-muted-foreground ml-2">per month</span>
                 </div>
                 <p className="text-muted-foreground">For food enthusiasts who want it all</p>

@@ -177,9 +177,9 @@ const Hero = () => {
   return (
     <section className="relative py-20 px-4 bg-gradient-to-r from-orange-50 to-amber-50">
       <div className="container mx-auto text-center">
-        <h2 className="text-5xl md:text-6xl font-bold text-foreground mb-6 leading-tight">
-          Discover Your Next
-          <span className="text-orange-600 block">Fine Dining Experience</span>
+        <h2 className="text-5xl md:text-6xl font-bold text-foreground mb-6 leading-tight overflow-visible">
+          <span className="block">Find Your Perfect</span>
+          <span className="text-orange-600 block pb-2">Dining Experience</span>
         </h2>
         <p className="text-xl text-muted-foreground mb-12 max-w-2xl mx-auto">
           Find and book the perfect table at the world's best restaurants. 
