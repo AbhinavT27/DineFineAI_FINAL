@@ -580,7 +580,7 @@ export type Database = {
           event_details: Json | null
           event_type: string
           id: string
-          ip_address: unknown | null
+          ip_address: unknown
           success: boolean
           user_agent: string | null
           user_id: string | null
@@ -590,7 +590,7 @@ export type Database = {
           event_details?: Json | null
           event_type: string
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           success?: boolean
           user_agent?: string | null
           user_id?: string | null
@@ -600,7 +600,7 @@ export type Database = {
           event_details?: Json | null
           event_type?: string
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           success?: boolean
           user_agent?: string | null
           user_id?: string | null
@@ -642,6 +642,7 @@ export type Database = {
       }
       subscribers: {
         Row: {
+          cancel_at_period_end: boolean | null
           created_at: string
           email: string
           id: string
@@ -654,6 +655,7 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
+          cancel_at_period_end?: boolean | null
           created_at?: string
           email: string
           id?: string
@@ -666,6 +668,7 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
+          cancel_at_period_end?: boolean | null
           created_at?: string
           email?: string
           id?: string
@@ -833,22 +836,14 @@ export type Database = {
         }
         Returns: string
       }
-      cleanup_expired_history: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
+      cancel_subscription_at_period_end: {
+        Args: { p_user_id: string }
+        Returns: boolean
       }
-      cleanup_expired_password_otps: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
-      cleanup_old_ai_generated_menus: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
-      cleanup_old_menu_analysis: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
+      cleanup_expired_history: { Args: never; Returns: undefined }
+      cleanup_expired_password_otps: { Args: never; Returns: undefined }
+      cleanup_old_ai_generated_menus: { Args: never; Returns: undefined }
+      cleanup_old_menu_analysis: { Args: never; Returns: undefined }
       delete_user_completely: {
         Args: { target_user_id: string }
         Returns: boolean
@@ -871,6 +866,12 @@ export type Database = {
           tags_count: number
           updated_at: string
           user_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "user_totals"
+          isOneToOne: true
+          isSetofReturn: false
         }
       }
       is_history_expired: {
@@ -899,14 +900,9 @@ export type Database = {
           username: string
         }[]
       }
-      reset_daily_search_requests: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
-      reset_daily_usage: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
+      process_expired_subscriptions: { Args: never; Returns: undefined }
+      reset_daily_search_requests: { Args: never; Returns: undefined }
+      reset_daily_usage: { Args: never; Returns: undefined }
       user_has_premium_subscription: {
         Args: { user_uuid: string }
         Returns: boolean

@@ -122,7 +122,10 @@ const Index = () => {
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
             {/* Left side - Logo and Copyright */}
             <div className="flex flex-col gap-2">
-              <h3 className="text-primary text-2xl font-bold">DineFineAI</h3>
+              <h3 className="text-2xl font-bold">
+                <span className="text-foodRed">DineFine</span>
+                <span className="text-foodOrange">AI</span>
+              </h3>
               <p className="text-muted-foreground text-sm">
                 © 2025 DineFineAI. All rights reserved.
               </p>
