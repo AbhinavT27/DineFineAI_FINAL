@@ -3,6 +3,7 @@ import { DowngradeWarning } from '@/components/DowngradeWarning';
 import { useFeatureGates } from '@/hooks/useFeatureGates';
 import { useNavigate, useLocation } from 'react-router-dom';
 import BottomNav from '@/components/BottomNav';
+import { ThemeProvider } from '@/components/ThemeProvider';
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -37,10 +38,12 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   }
 
   return (
-    <div className="min-h-screen pb-16 sm:pb-0">
-      <DowngradeWarning />
-      {children}
-      <BottomNav />
-    </div>
+    <ThemeProvider defaultTheme="light">
+      <div className="min-h-screen pb-16 sm:pb-0">
+        <DowngradeWarning />
+        {children}
+        <BottomNav />
+      </div>
+    </ThemeProvider>
   );
 };

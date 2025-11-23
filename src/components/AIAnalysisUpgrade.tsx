@@ -13,6 +13,8 @@ interface AIAnalysisUpgradeProps {
   reviews?: any[];
   pros?: string[];
   cons?: string[];
+  onAnalysisAttempt?: () => boolean;
+  onAnalysisSuccess?: () => void;
 }
 
 const AIAnalysisUpgrade: React.FC<AIAnalysisUpgradeProps> = ({ 
@@ -20,7 +22,9 @@ const AIAnalysisUpgrade: React.FC<AIAnalysisUpgradeProps> = ({
   restaurantName, 
   reviews = [], 
   pros = [], 
-  cons = [] 
+  cons = [],
+  onAnalysisAttempt,
+  onAnalysisSuccess
 }) => {
   const navigate = useNavigate();
   const { createCheckout, limits } = useSubscription();
@@ -34,6 +38,11 @@ const AIAnalysisUpgrade: React.FC<AIAnalysisUpgradeProps> = ({
   useEffect(() => {
     const fetchAnalysis = async () => {
       if (hasAccess && restaurantName && reviews.length > 0 && pros.length === 0 && cons.length === 0) {
+        // Check guest mode access first if callback provided
+        if (onAnalysisAttempt && !onAnalysisAttempt()) {
+          return;
+        }
+        
         setIsAnalyzing(true);
         try {
           const result = await analyzeReviewsWithAI(reviews, restaurantName);
@@ -41,6 +50,8 @@ const AIAnalysisUpgrade: React.FC<AIAnalysisUpgradeProps> = ({
             pros: result.whatPeopleLove,
             cons: result.areasForImprovement
           });
+          // Notify guest mode of successful analysis
+          onAnalysisSuccess?.();
         } catch (error) {
           console.error('Failed to analyze reviews:', error);
         } finally {
@@ -52,7 +63,7 @@ const AIAnalysisUpgrade: React.FC<AIAnalysisUpgradeProps> = ({
     };
 
     fetchAnalysis();
-  }, [hasAccess, restaurantName, reviews, pros, cons]);
+  }, [hasAccess, restaurantName, reviews, pros, cons, onAnalysisAttempt, onAnalysisSuccess]);
 
   const handleUpgradeClick = () => {
     if (user) {

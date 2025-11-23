@@ -12,11 +12,13 @@ import { searchRestaurants } from '@/services/restaurantApi';
 import { Helmet } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
 import { Instagram, Youtube, Mail } from 'lucide-react';
+import { useTheme } from '@/components/ThemeProvider';
 
 const Index = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const { theme } = useTheme();
   const [preferences, setPreferences] = useState<UserPreferences>({
     dietaryRestrictions: [],
     allergies: [],
@@ -95,7 +97,7 @@ const Index = () => {
         <div 
           className="bg-cover bg-center h-full flex items-center py-16 md:py-24"
           style={{ 
-            backgroundImage: 'url(/updated_home.png)'
+            backgroundImage: `url(${theme === 'dark' ? '/DineFineAI_bBlackground.png' : '/DineFineAI_wBackground.png'})`
           }}
         >
           <div className="container mx-auto px-4">
@@ -106,7 +108,7 @@ const Index = () => {
               </p>
             </div>
             
-            <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-xl p-6">
+            <div className="max-w-4xl mx-auto bg-transparent backdrop-blur-sm rounded-xl p-6">
               <SearchForm onSearch={handleSearch} isLoading={isLoading} />
             </div>
           </div>

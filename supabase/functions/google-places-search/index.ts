@@ -20,86 +20,91 @@ serve(async (req) => {
     console.log('Google Places Search function called');
     
     const authHeader = req.headers.get('Authorization');
-    if (!authHeader) {
-      console.error('Missing Authorization header');
-      return new Response(JSON.stringify({ error: 'Missing Authorization header' }), {
-        status: 401,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
-
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_ANON_KEY')!;
+    
+    let isGuestMode = false;
+    let userId = null;
+
+    // Create Supabase client
     const supabase = createClient(supabaseUrl, supabaseKey, {
-      global: { headers: { Authorization: authHeader } }
+      global: { headers: authHeader ? { Authorization: authHeader } : {} }
     });
 
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    if (authError || !user) {
-      console.error('Authentication failed:', authError);
-      return new Response(JSON.stringify({ error: 'Authentication failed' }), {
-        status: 401,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
+    // Try to authenticate if header is present
+    if (authHeader) {
+
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      
+      if (!authError && user) {
+        userId = user.id;
+        console.log('User authenticated:', user.id);
+        
+        // Check search throttling for authenticated users - 10 searches per day
+        const today = new Date().toISOString().split('T')[0];
+        
+        const { data: profile, error: profileError } = await supabase
+          .from('profiles')
+          .select('daily_searchrequests, last_search_reset_date')
+          .eq('id', user.id)
+          .single();
+
+        if (profileError) {
+          console.error('Error fetching profile:', profileError);
+          throw new Error('Failed to check search limits');
+        }
+
+        let currentSearchRequests = profile.daily_searchrequests || 0;
+        const lastResetDate = profile.last_search_reset_date;
+
+        // Reset count if it's a new day
+        if (lastResetDate !== today) {
+          currentSearchRequests = 0;
+          await supabase
+            .from('profiles')
+            .update({
+              daily_searchrequests: 0,
+              last_search_reset_date: today
+            })
+            .eq('id', user.id);
+          console.log(`Reset daily search count for user ${user.id} - new date: ${today}`);
+        }
+        
+        // Check if user has exceeded the limit
+        if (currentSearchRequests >= 10) {
+          console.log(`User ${user.id} has exceeded daily search limit (${currentSearchRequests}/10)`);
+          return new Response(JSON.stringify({ 
+            error: 'Daily search limit exceeded',
+            message: 'You have reached your daily limit of 10 searches. Please try again tomorrow.',
+            limit: 10,
+            used: currentSearchRequests
+          }), {
+            status: 429,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+
+        // Increment search request count
+        await supabase
+          .from('profiles')
+          .update({
+            daily_searchrequests: currentSearchRequests + 1
+          })
+          .eq('id', user.id);
+
+        console.log(`Search request logged for user ${user.id}: ${currentSearchRequests + 1}/10`);
+      } else {
+        console.log('No valid authentication, treating as guest mode');
+        isGuestMode = true;
+      }
+    } else {
+      console.log('No authorization header, treating as guest mode');
+      isGuestMode = true;
     }
 
-    console.log('User authenticated:', user.id);
-    
-    // Check search throttling - 10 searches per day for all users
-    // Get current date in UTC timezone
-    const today = new Date().toISOString().split('T')[0];
-    
-    // Get user's profile to check daily search requests
-    const { data: profile, error: profileError } = await supabase
-      .from('profiles')
-      .select('daily_searchrequests, last_search_reset_date')
-      .eq('id', user.id)
-      .single();
-
-    if (profileError) {
-      console.error('Error fetching profile:', profileError);
-      throw new Error('Failed to check search limits');
+    if (isGuestMode) {
+      console.log('Processing request in guest mode - no authentication required');
     }
-
-    let currentSearchRequests = profile.daily_searchrequests || 0;
-    const lastResetDate = profile.last_search_reset_date;
-
-    // Reset count if it's a new day (UTC timezone)
-    if (lastResetDate !== today) {
-      currentSearchRequests = 0;
-      await supabase
-        .from('profiles')
-        .update({
-          daily_searchrequests: 0,
-          last_search_reset_date: today
-        })
-        .eq('id', user.id);
-      console.log(`Reset daily search count for user ${user.id} - new date: ${today}`);
-    }
-    
-    // Check if user has exceeded the limit (10 searches per day for all users)
-    if (currentSearchRequests >= 10) {
-      console.log(`User ${user.id} has exceeded daily search limit (${currentSearchRequests}/10)`);
-      return new Response(JSON.stringify({ 
-        error: 'Daily search limit exceeded',
-        message: 'You have reached your daily limit of 10 searches. Please try again tomorrow.',
-        limit: 10,
-        used: currentSearchRequests
-      }), {
-        status: 429,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
-
-    // Increment search request count
-    await supabase
-      .from('profiles')
-      .update({
-        daily_searchrequests: currentSearchRequests + 1
-      })
-      .eq('id', user.id);
-
-    console.log(`Search request logged for user ${user.id}: ${currentSearchRequests + 1}/10`);
     
     if (!GOOGLE_PLACES_API_KEY) {
       console.error('Google Places API key not found');
@@ -202,15 +207,18 @@ serve(async (req) => {
               place.location.longitude
             );
             
-            // Format distance based on user's distance unit preference
-            // We'll get this from the profile query earlier
-            const { data: userProfile } = await supabase
-              .from('profiles')
-              .select('distance_unit')
-              .eq('id', user.id)
-              .single();
+            // Format distance based on user's distance unit preference (authenticated users only)
+            let distanceUnit = 'miles'; // Default for guest users
             
-            const distanceUnit = userProfile?.distance_unit || 'miles';
+            if (userId) {
+              const { data: userProfile } = await supabase
+                .from('profiles')
+                .select('distance_unit')
+                .eq('id', userId)
+                .single();
+              
+              distanceUnit = userProfile?.distance_unit || 'miles';
+            }
             
             if (distanceUnit === 'miles') {
               const distanceInMiles = distanceInKm * 0.621371;

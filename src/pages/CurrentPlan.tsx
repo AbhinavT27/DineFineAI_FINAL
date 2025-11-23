@@ -74,6 +74,11 @@ const CurrentPlan = () => {
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
               Manage your subscription and explore available features
             </p>
+            {/* New red notice */}
+            <p className="mt-3 text-sm font-medium text-foodRed max-w-2xl mx-auto">
+              Please note that updates to your subscription plan may take up to 5 minutes
+              to be fully processed and reflected in your account.
+            </p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
@@ -131,8 +136,9 @@ const CurrentPlan = () => {
                    <Button 
                      className="w-full bg-foodRed hover:bg-foodRed/90"
                      onClick={() => openCustomerPortal()}
+                     disabled
                    >
-                     Manage Subscription
+                     Downgrade Not Available
                    </Button>
                  )}
                </CardContent>
@@ -199,6 +205,14 @@ const CurrentPlan = () => {
                         Manage Subscription
                       </Button>
                     </div>
+                  ) : subscription_tier === 'premium' ? (
+                    <Button 
+                      className="w-full"
+                      variant="outline"
+                      disabled
+                    >
+                      Downgrade Not Available
+                    </Button>
                   ) : (
                     <Button 
                       className="w-full bg-foodRed hover:bg-foodRed/90"
@@ -255,6 +269,13 @@ const CurrentPlan = () => {
                         Manage Subscription
                       </Button>
                     </div>
+                  ) : subscription_tier === 'pro' ? (
+                    <Button 
+                      className="w-full premium-gradient hover:opacity-90"
+                      onClick={() => createCheckout('premium')}
+                    >
+                      Upgrade to Premium
+                    </Button>
                   ) : (
                     <Button 
                       className="w-full premium-gradient hover:opacity-90"

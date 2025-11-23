@@ -63,7 +63,7 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({ restaurant, onRestauran
   return (
     <Card className="restaurant-card h-full overflow-hidden border border-border hover:border-foodRed/30 transition-all duration-200 cursor-pointer relative">
       <Link 
-        to={`/restaurant/${restaurant.id}`} 
+        to={user ? `/restaurant/${restaurant.id}` : `/app/guest/restaurant/${restaurant.id}`}
         state={{ 
           searchResults: searchResults, 
           searchPreferences: searchPreferences 

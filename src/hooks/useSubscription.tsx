@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
@@ -71,6 +72,7 @@ const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 
 export const useSubscription = () => {
   const { user, session } = useAuth();
+  const location = useLocation();
   const [subscriptionStatus, setSubscriptionStatus] = useState<SubscriptionStatus>(() => {
     // Initialize with cached data if available and not expired
     if (user?.email) {
@@ -175,12 +177,6 @@ export const useSubscription = () => {
           subscription_end: data?.subscription_end ?? null,
         };
         
-        // Check if subscription status actually changed
-        const statusChanged = (
-          subscriptionStatus.subscribed !== newStatus.subscribed ||
-          subscriptionStatus.subscription_tier !== newStatus.subscription_tier
-        );
-        
         setSubscriptionStatus(newStatus);
         
         // Cache the result
@@ -191,14 +187,6 @@ export const useSubscription = () => {
           }));
         } catch (e) {
           console.warn('Failed to cache subscription status:', e);
-        }
-
-        // Reload page if subscription status changed (after returning from Stripe)
-        if (statusChanged && user?.email) {
-          console.log('Subscription status changed, reloading page...');
-          setTimeout(() => {
-            window.location.reload();
-          }, 1000); // Small delay to ensure UI updates are visible first
         }
       }
     } catch (error) {
@@ -303,6 +291,58 @@ export const useSubscription = () => {
       }
     }
   }, [user?.email, session?.access_token]); // Only depend on user email and session token
+
+  // Set up realtime subscription for immediate updates
+  useEffect(() => {
+    if (!user?.email) return;
+
+    const channel = supabase
+      .channel('subscription-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'subscribers',
+          filter: `email=eq.${user.email}`,
+        },
+        (payload) => {
+          console.log('Subscription updated via realtime:', payload);
+          
+          if (payload.eventType === 'UPDATE' || payload.eventType === 'INSERT') {
+            const newData = payload.new as any;
+            const normalizedTier = normalizeSubscriptionTier(newData.subscription_tier);
+            
+            const updatedStatus: SubscriptionStatus = {
+              subscribed: newData.subscribed ?? false,
+              subscription_tier: normalizedTier,
+              subscription_end: newData.subscription_end,
+            };
+
+            // Update state immediately
+            setSubscriptionStatus(updatedStatus);
+
+            // Update cache
+            localStorage.setItem(
+              `${CACHE_KEY}_${user.email}`,
+              JSON.stringify({ data: updatedStatus, timestamp: Date.now() })
+            );
+
+            // Show toast notification only if user is authenticated and not in guest mode
+            if (user?.email && !location.pathname.startsWith('/app/guest')) {
+              toast.success('Subscription updated', {
+                description: `Your plan has been updated to ${normalizedTier}`,
+              });
+            }
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user?.email]);
 
   // Get current plan limits
   const limits = PLAN_LIMITS[subscriptionStatus.subscription_tier] || PLAN_LIMITS.free;

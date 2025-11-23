@@ -14,20 +14,23 @@ const ComparisonBar: React.FC = () => {
 
   // Get max comparisons based on subscription tier
   const getMaxComparisons = () => {
+    // Guests and free users can compare 2 restaurants
+    // Pro users can compare 2 restaurants  
+    // Premium users can compare 3 restaurants
     if (subscription_tier === 'premium') return 3;
     if (subscription_tier === 'pro') return 2;
-    return 0; // Free users can't compare
+    return 2; // Guests can compare 2 restaurants
   };
 
-  // Clear comparison when on home page
+  // Clear comparison when on home page or guest home
   useEffect(() => {
-    if (location.pathname === '/home' || location.pathname === '/') {
+    if (location.pathname === '/home' || location.pathname === '/' || location.pathname === '/app/guest') {
       clearComparison();
     }
-  }, [location.pathname]); // Removed clearComparison dependency to prevent infinite loop
+  }, [location.pathname]);
 
-  // Don't show comparison bar on home page
-  if (location.pathname === '/home' || location.pathname === '/') {
+  // Don't show comparison bar on home pages
+  if (location.pathname === '/home' || location.pathname === '/' || location.pathname === '/app/guest') {
     return null;
   }
 
@@ -66,7 +69,7 @@ const ComparisonBar: React.FC = () => {
         <div className="flex gap-2">
           <Button asChild variant="default" className="bg-foodRed hover:bg-foodRed/90">
             <Link 
-              to="/comparison"
+              to={location.pathname.includes('/app/guest') ? '/app/guest/comparison' : '/comparison'}
               state={{
                 searchResults: searchResults,
                 searchPreferences: searchPreferences

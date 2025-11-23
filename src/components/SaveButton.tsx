@@ -54,7 +54,13 @@ const SaveButton: React.FC<SaveButtonProps> = ({ restaurant, className = '' }) =
     e.stopPropagation();
 
     if (!user) {
-      toast.error('Please log in to save restaurants');
+      toast.error('You need an account to save restaurants and create tags.', {
+        position: 'top-center',
+        action: {
+          label: 'Sign Up',
+          onClick: () => window.location.href = '/auth',
+        },
+      });
       return;
     }
 

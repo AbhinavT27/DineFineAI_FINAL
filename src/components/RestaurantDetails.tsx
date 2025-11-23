@@ -23,9 +23,21 @@ interface RestaurantDetailsProps {
   restaurant: Restaurant;
   shouldStartScraping?: boolean;
   initialMenuItems?: any[];
+  onScrapeAttempt?: () => boolean;
+  onScrapeSuccess?: () => void;
+  onAIAnalysisAttempt?: () => boolean;
+  onAIAnalysisSuccess?: () => void;
 }
 
-const RestaurantDetails: React.FC<RestaurantDetailsProps> = ({ restaurant, shouldStartScraping = false, initialMenuItems = [] }) => {
+const RestaurantDetails: React.FC<RestaurantDetailsProps> = ({ 
+  restaurant, 
+  shouldStartScraping = false, 
+  initialMenuItems = [],
+  onScrapeAttempt,
+  onScrapeSuccess,
+  onAIAnalysisAttempt,
+  onAIAnalysisSuccess
+}) => {
   const { userPreferences, user } = useAuth();
   const { incrementRestaurantScrape, canScrapeRestaurant, decrementRestaurantScrape } = useFeatureGates();
   const [menuItems, setMenuItems] = useState<any[]>(initialMenuItems);
@@ -34,6 +46,11 @@ const RestaurantDetails: React.FC<RestaurantDetailsProps> = ({ restaurant, shoul
 
   const handleScrapeMenu = async () => {
     if (isScrapingMenu) {
+      return;
+    }
+
+    // Check guest mode limits first if callback provided
+    if (onScrapeAttempt && !onScrapeAttempt()) {
       return;
     }
 
@@ -50,8 +67,8 @@ const RestaurantDetails: React.FC<RestaurantDetailsProps> = ({ restaurant, shoul
     setHasAttemptedScrape(true);
     
     try {
-      // Increment usage before generating
-      const canProceed = await incrementRestaurantScrape();
+      // Increment usage before generating (for authenticated users)
+      const canProceed = user ? await incrementRestaurantScrape() : true;
       if (!canProceed) {
         setIsScrapingMenu(false);
         return;
@@ -71,7 +88,7 @@ const RestaurantDetails: React.FC<RestaurantDetailsProps> = ({ restaurant, shoul
 
       if (error) {
         console.error('Menu generation failed:', error);
-        await decrementRestaurantScrape();
+        if (user) await decrementRestaurantScrape();
         toast({
           title: "Error",
           description: "Failed to generate menu. Please try again.",
@@ -89,13 +106,15 @@ const RestaurantDetails: React.FC<RestaurantDetailsProps> = ({ restaurant, shoul
         }));
         
         setMenuItems(transformedItems);
+        // Notify guest mode of successful scrape
+        onScrapeSuccess?.();
         toast({
           title: "Success",
           description: `Menu generated successfully! Found ${data.menuItems.length} items.`
         });
       } else {
         setMenuItems([]);
-        await decrementRestaurantScrape();
+        if (user) await decrementRestaurantScrape();
         toast({
           title: "No Menu Generated",
           description: "Could not generate menu items for this restaurant."
@@ -105,7 +124,7 @@ const RestaurantDetails: React.FC<RestaurantDetailsProps> = ({ restaurant, shoul
     } catch (error) {
       console.error('Failed to generate menu:', error);
       setMenuItems([]);
-      await decrementRestaurantScrape();
+      if (user) await decrementRestaurantScrape();
       toast({
         title: "Error",
         description: "Failed to generate menu. Please try again.",
@@ -372,6 +391,8 @@ const RestaurantDetails: React.FC<RestaurantDetailsProps> = ({ restaurant, shoul
           reviews={restaurant.reviews || []}
           pros={restaurant.pros || []}
           cons={restaurant.cons || []}
+          onAnalysisAttempt={onAIAnalysisAttempt}
+          onAnalysisSuccess={onAIAnalysisSuccess}
         />
 
         {/* Customer Reviews - Available for all users */}

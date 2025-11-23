@@ -16,6 +16,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { AccountDetailsDialog } from '@/components/AccountDetailsDialog';
 import { useTranslation } from 'react-i18next';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { ThemeToggle } from '@/components/ThemeToggle';
 
 // Same dietary and allergy options from SearchForm component
 const dietaryOptions = ['Vegetarian', 'Vegan', 'Gluten-Free', 'Halal', 'Kosher', 'Dairy-Free', 'Nut-Free'];
@@ -232,6 +233,16 @@ const Profile = () => {
                       ))}
                     </SelectContent>
                   </Select>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="theme">{t('profile.theme', 'Theme')}</Label>
+                  <div className="flex items-center space-x-2">
+                    <ThemeToggle />
+                    <span className="text-sm text-muted-foreground">
+                      {t('profile.themeDesc', 'Toggle between light and dark mode')}
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>

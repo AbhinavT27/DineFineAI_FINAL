@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
@@ -17,6 +17,25 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import Logo from '@/components/Logo';
 
 const Auth = () => {
+  // Force light mode for auth page
+  useEffect(() => {
+    const root = window.document.documentElement;
+    root.classList.remove('dark');
+    root.classList.add('light');
+    
+    return () => {
+      // Restore theme on unmount
+      const savedTheme = localStorage.getItem('dinefine-ui-theme') || 'light';
+      root.classList.remove('light', 'dark');
+      if (savedTheme === 'system') {
+        const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        root.classList.add(systemTheme);
+      } else {
+        root.classList.add(savedTheme);
+      }
+    };
+  }, []);
+
   const { t } = useTranslation();
   const { changeLanguage, availableLanguages, currentLanguage } = useLanguage();
   const [isSignIn, setIsSignIn] = useState(true);

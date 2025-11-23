@@ -8,6 +8,18 @@ import Logo from '@/components/Logo';
 import { Helmet } from 'react-helmet-async';
 
 const Welcome = () => {
+  // Force light mode for welcome page - always stay in light mode
+  useEffect(() => {
+    const root = window.document.documentElement;
+    
+    // Immediately force light mode, removing any dark class
+    root.classList.remove('dark');
+    root.classList.add('light');
+    
+    // No cleanup - we don't restore theme on unmount
+    // Other pages will set their own theme when they mount
+  }, []);
+
   const features = [
     {
       icon: Search,
@@ -98,7 +110,7 @@ const Welcome = () => {
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
                 <Button asChild size="lg" className="bg-foodRed hover:bg-foodRed/90">
-                  <Link to="/auth">Get Started Free</Link>
+                  <Link to="/app/guest">Get Started Free</Link>
                 </Button>
                 <Button asChild variant="outline" size="lg">
                   <Link to="/pricing">View Pricing</Link>
@@ -148,7 +160,7 @@ const Welcome = () => {
               Join thousands of users who have discovered their perfect restaurants with DineFineAI
             </p>
             <Button asChild size="lg" variant="secondary">
-              <Link to="/auth">Start Your Journey</Link>
+              <Link to="/app/guest">Start Your Journey</Link>
             </Button>
           </div>
         </div>

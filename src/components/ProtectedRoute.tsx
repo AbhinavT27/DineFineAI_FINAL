@@ -15,9 +15,16 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
       navigate('/profile?newUser=true', { replace: true });
     }
     
-    // If not authenticated and not loading, redirect to auth
+    // If not authenticated and not loading, redirect appropriately
     if (!user && !isLoading) {
-      navigate('/auth', { replace: true });
+      const guestLockedRoutes: Record<string, string> = {
+        '/profile': '/app/guest/locked/profile',
+        '/saved-list': '/app/guest/locked/saved',
+        '/current-plan': '/app/guest/locked/plan',
+      };
+
+      const target = guestLockedRoutes[location.pathname] || '/auth';
+      navigate(target, { replace: true });
     }
   }, [user, isLoading, navigate, isNewUser, location.pathname]);
 

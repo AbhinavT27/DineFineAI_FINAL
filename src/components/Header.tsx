@@ -30,7 +30,7 @@ const Header = () => {
   };
 
   return (
-    <header className="bg-white border-b border-border sticky top-0 z-40">
+    <header className="bg-background border-b border-border sticky top-0 z-40">
       <div className="container mx-auto px-2 sm:px-4">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-0 py-2 sm:py-0 sm:h-16">
           <div className="flex items-center w-full sm:w-auto justify-between sm:justify-start">

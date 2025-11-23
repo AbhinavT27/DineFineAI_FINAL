@@ -46,9 +46,12 @@ export const ComparisonProvider: React.FC<ComparisonProviderProps> = ({ children
   }
 
   const getMaxComparisons = () => {
+    // Guests and free users can compare 2 restaurants
+    // Pro users can compare 2 restaurants
+    // Premium users can compare 3 restaurants
     if (subscription_tier === 'premium') return 3;
     if (subscription_tier === 'pro') return 2;
-    return 0; // Free users can't compare
+    return 2; // Guests can compare 2 restaurants
   };
 
   const addToComparison = (restaurant: Restaurant) => {

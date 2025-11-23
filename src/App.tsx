@@ -10,6 +10,7 @@ import { LanguageProvider } from "@/contexts/LanguageContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import RedirectIfAuthenticated from "@/components/RedirectIfAuthenticated";
 import { AppLayout } from "@/components/AppLayout";
+import { ThemeProvider } from "@/components/ThemeProvider";
 import Welcome from "./pages/Welcome";
 import Pricing from "./pages/Pricing";
 import CurrentPlan from "./pages/CurrentPlan";
@@ -34,6 +35,12 @@ import SignupVerification from "./pages/SignupVerification";
 import ScrapeMenu from "./pages/ScrapeMenu";
 import UnderConstruction from "./pages/UnderConstruction";
 import { maintenanceConfig } from "@/config/maintenance";
+import GuestApp from "./pages/GuestApp";
+import GuestSearchResults from "./pages/GuestSearchResults";
+import GuestRestaurant from "./pages/GuestRestaurant";
+import GuestHistory from "./pages/GuestHistory";
+import GuestLockedPage from "./pages/GuestLockedPage";
+import GuestComparison from "./pages/GuestComparison";
 
 const queryClient = new QueryClient();
 
@@ -60,7 +67,17 @@ const App = () => {
                 {/* Welcome page for unauthenticated users */}
                 <Route path="/welcome" element={<Welcome />} />
                 <Route path="/pricing" element={<Pricing />} />
-                <Route 
+                
+                {/* Guest mode routes - no authentication required */}
+                <Route path="/app/guest" element={<ThemeProvider><GuestApp /></ThemeProvider>} />
+                <Route path="/app/guest/search-results" element={<ThemeProvider><GuestSearchResults /></ThemeProvider>} />
+                <Route path="/app/guest/restaurant/:id" element={<ThemeProvider><GuestRestaurant /></ThemeProvider>} />
+                <Route path="/app/guest/history" element={<ThemeProvider><GuestHistory /></ThemeProvider>} />
+                <Route path="/app/guest/comparison" element={<ThemeProvider><GuestComparison /></ThemeProvider>} />
+                {/* Locked pages for guests */}
+                <Route path="/app/guest/locked/:page" element={<ThemeProvider><GuestLockedPage /></ThemeProvider>} />
+                
+                <Route
                   path="/home" 
                   element={
                     <ProtectedRoute>

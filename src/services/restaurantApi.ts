@@ -36,6 +36,7 @@ export const searchRestaurants = async (preferences: UserPreferences): Promise<R
     console.log(`Search radius: ${preferences.searchRadius} ${userDistanceUnit} = ${radiusInMeters} meters`);
 
     // Call Google Places API through our edge function
+    // For guest users, we still pass the request but the edge function will handle it differently
     const { data, error } = await supabase.functions.invoke('google-places-search', {
       body: {
         location: preferences.location,
